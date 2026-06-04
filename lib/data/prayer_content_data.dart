@@ -17,13 +17,6 @@ String? _getSafeTitle(Map<dynamic, dynamic> item) {
 // =======================================================================
 final List<Map<String, dynamic>> prayerListItems = [
   {
-    'title': 'መፅሓፈ ቅዳሴ',
-    'icon': Icons.auto_stories,
-    'type': 'liturgy',
-    'headerImage': 'assets/images/prayers/liturgy_banner.jpg', // Make sure this image exists
-    'itemKeys': ['liturgy_content_key'], 
-  },
-  {
     'title': 'መባእታ ናይ ትምህርቲ ክርስቶስ',
     'icon': Icons.folder_copy_rounded,
     'type': 'category',
@@ -46,37 +39,51 @@ final List<Map<String, dynamic>> prayerListItems = [
     'title': 'ፍኖተ መስቀል',
     'icon': Icons.folder_copy_rounded,
     'type': 'swipeable_page',
-    'itemKeys': fnotMsqelContent.map(_getSafeTitle).whereType<String>().toList(),
+    'itemKeys':
+        fnotMsqelContent.map(_getSafeTitle).whereType<String>().toList(),
   },
   {
     'title': 'ፀሎታት ንፍሉይ ኩነታት',
     'icon': Icons.folder_copy_rounded,
     'type': 'category',
-    'itemKeys': prayersForVariousNeeds.map(_getSafeTitle).whereType<String>().toList(),
+    'itemKeys':
+        prayersForVariousNeeds.map(_getSafeTitle).whereType<String>().toList(),
   },
   {
     'title': 'ፀሎት ናብ ልቢ እየሱስ',
     'icon': Icons.folder_copy_rounded,
     'type': 'swipeable_page',
-    'itemKeys': tselotNabLibiEyesusContent.map(_getSafeTitle).whereType<String>().toList(),
+    'itemKeys': tselotNabLibiEyesusContent
+        .map(_getSafeTitle)
+        .whereType<String>()
+        .toList(),
   },
   {
     'title': 'ፀሎት ናብ መለኮታዊ ምሕረት',
     'icon': Icons.folder_copy_rounded,
     'type': 'swipeable_page',
-    'itemKeys': tselotNabMlekotawiMihretContent.map(_getSafeTitle).whereType<String>().toList(),
+    'itemKeys': tselotNabMlekotawiMihretContent
+        .map(_getSafeTitle)
+        .whereType<String>()
+        .toList(),
   },
   {
     'title': 'ፀሎት መቑፀርያ መንፈስ ቅዱስ',
     'icon': Icons.folder_copy_rounded,
     'type': 'swipeable_page',
-    'itemKeys': tselotMekutseriaMenfesQdusContent.map(_getSafeTitle).whereType<String>().toList(),
+    'itemKeys': tselotMekutseriaMenfesQdusContent
+        .map(_getSafeTitle)
+        .whereType<String>()
+        .toList(),
   },
   {
     'title': 'መቑፀርያ ቅዱስ ልቢ',
     'icon': Icons.folder_copy_rounded,
     'type': 'swipeable_page',
-    'itemKeys': mekutseriaQdusLibiContent.map(_getSafeTitle).whereType<String>().toList(),
+    'itemKeys': mekutseriaQdusLibiContent
+        .map(_getSafeTitle)
+        .whereType<String>()
+        .toList(),
   },
 ];
 
@@ -84,40 +91,43 @@ final List<Map<String, dynamic>> prayerListItems = [
 // === 2. MASTER DATA MAP (The "Database") ===============================
 // =======================================================================
 final Map<String, List<Map<String, dynamic>>> allPrayersContent = {
-  'liturgy_content_key': [
-    {'type': 'heading', 'text': 'ስርዓተ ቅዳሴ'},
-    {'type': 'paragraph', 'text': 'ኣብዚ ናይ ስርዓተ ቅዳሴ ምሉእ ትሕዝቶ ክኣቱ ይኽእል እዩ። ንግዚኡ ከምዚ ተገይሩ ኣሎ።'}
-  ],
-
   ...Map.fromEntries(mebaetaTimhirtiKristosFullContent.entries.map(
-    (entry) => MapEntry(entry.key, [{'type': 'paragraph', 'text': entry.value}]),
+    (entry) => MapEntry(entry.key, [
+      {'type': 'paragraph', 'text': entry.value}
+    ]),
   )),
-
   ...Map.fromEntries(
     rosaryJoyfulPrayerContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     rosaryLuminousPrayerContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     rosarySorrowfulPrayerContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     rosaryGloriousPrayerContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
-  
   "rosary_conclusion": [
     {'type': 'heading', 'text': 'ሰላም ንኣኺ ኦ ንግስቲ'},
     {'type': 'paragraph', 'text': rosaryHailHolyQueenContent},
@@ -125,74 +135,88 @@ final Map<String, List<Map<String, dynamic>>> allPrayersContent = {
     {'type': 'heading', 'text': 'ምህለላ ናብ እግዝእትነ ማርያም'},
     {'type': 'paragraph', 'text': rosaryLitanyContent},
   ],
-
   ...Map.fromEntries(
     fnotMsqelContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     prayersForVariousNeeds.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     tselotNabLibiEyesusContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     tselotNabMlekotawiMihretContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     tselotMekutseriaMenfesQdusContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
   ...Map.fromEntries(
     mekutseriaQdusLibiContent.map((item) {
       final title = _getSafeTitle(item);
-      return title != null ? MapEntry(title, _transformContentList([item])) : null;
+      return title != null
+          ? MapEntry(title, _transformContentList([item]))
+          : null;
     }).whereType<MapEntry<String, List<Map<String, dynamic>>>>(),
   ),
 };
 
-
-
 // =======================================================================
 // === 3. HELPER FUNCTIONS TO TRANSFORM OLD DATA =========================
 // =======================================================================
-List<Map<String, dynamic>> _transformContentList(List<Map<String, dynamic>> oldList) {
-  return oldList.map((item) {
-    List<Map<String, dynamic>> blocks = [];
-    if (item['imagePath'] is String) {
-      blocks.add({'type': 'image', 'path': item['imagePath']});
-    }
-    if (item['content'] is Map) {
-      final content = item['content'] as Map;
-      if (content['title'] is String) {
-        blocks.add({'type': 'heading', 'text': content['title']});
-      }
-      if (content['body'] is String) {
-        blocks.add({'type': 'paragraph', 'text': content['body']});
-      }
-      if (content['prompt'] is String && (content['prompt'] as String).isNotEmpty) {
-        blocks.add({'type': 'prompt', 'text': content['prompt']});
-      }
-    }
-    return blocks;
-  }).expand((element) => element).toList();
+List<Map<String, dynamic>> _transformContentList(
+    List<Map<String, dynamic>> oldList) {
+  return oldList
+      .map((item) {
+        List<Map<String, dynamic>> blocks = [];
+        if (item['imagePath'] is String) {
+          blocks.add({'type': 'image', 'path': item['imagePath']});
+        }
+        if (item['content'] is Map) {
+          final content = item['content'] as Map;
+          if (content['title'] is String) {
+            blocks.add({'type': 'heading', 'text': content['title']});
+          }
+          if (content['body'] is String) {
+            blocks.add({'type': 'paragraph', 'text': content['body']});
+          }
+          if (content['prompt'] is String &&
+              (content['prompt'] as String).isNotEmpty) {
+            blocks.add({'type': 'prompt', 'text': content['prompt']});
+          }
+        }
+        return blocks;
+      })
+      .expand((element) => element)
+      .toList();
 }
 
-
-List<Map<String, dynamic>> _buildRosaryMysteryPage(List<Map<String, dynamic>> mysteries) {
+List<Map<String, dynamic>> _buildRosaryMysteryPage(
+    List<Map<String, dynamic>> mysteries) {
   List<Map<String, dynamic>> allBlocks = [];
   for (var mystery in mysteries) {
     if (mystery['imagePath'] is String) {
@@ -206,7 +230,8 @@ List<Map<String, dynamic>> _buildRosaryMysteryPage(List<Map<String, dynamic>> my
       if (content['body'] is String) {
         allBlocks.add({'type': 'paragraph', 'text': content['body']});
       }
-      if (content['prompt'] is String && (content['prompt'] as String).isNotEmpty) {
+      if (content['prompt'] is String &&
+          (content['prompt'] as String).isNotEmpty) {
         allBlocks.add({'type': 'prompt', 'text': content['prompt']});
       }
     }
@@ -221,9 +246,6 @@ List<Map<String, dynamic>> _buildRosaryMysteryPage(List<Map<String, dynamic>> my
   ]);
   return allBlocks;
 }
-
-
-
 
 const String rosaryHailHolyQueenContent = '''
 ሰላም ንኣኺ ኦ ንግስቲ፣ ሰላም ንኣኺ ኦ እኖ ምሕረት፣ ሰላም ንኣኺ ኦ ጥዕምቲ ሕይወትናን ታሕጓስናን ተስፋ መድኃኒትናን። ንሕና ስደተኛታት ውሉድ ሔዋን ናባኺ ነእዊ ኣሎና፣ እናበኸናን እናቆዘምናን ኣብ እዚ ናይ ብኽያት ቆላ ናባኺ ንምሕፀን ኣሎና፣ ስለዚ ንኣና ስምዕና ብዓይኒ ምሕረትኪ ረኣይና፣ ኦ ርሕርሕትን ጥዕምትን መሓሪትን ጠበቃና ዝኾንኪ ድንግል ማርያም፣ ድሕሪ እዚ ስደት እዚ እቲ ናይ ከርስኺ ብሩኽ ፍረ ዝኾነ ጎይታና እየሱስ ክርስቶስ ወድኺ ኣርእይና።
@@ -336,8 +358,6 @@ const String rosaryLitanyContent = '''
 ''';
 
 const List<Map<String, dynamic>> rosaryJoyfulPrayerContent = [
-
-
   // <<< === ሓድሽ ዝተወሰኸ ክፍል === >>>
 
   {
@@ -556,11 +576,7 @@ const List<Map<String, dynamic>> mekutseriaQdusLibiContent = [
   },
   {
     'imagePath': null,
-    'content': {
-      'title': '4',
-      'body': 'ኦ ጥዑም ልቢ ማርያም ምድሓነይ ኩን።',
-      'prompt': ''
-    }
+    'content': {'title': '4', 'body': 'ኦ ጥዑም ልቢ ማርያም ምድሓነይ ኩን።', 'prompt': ''}
   },
   {
     'imagePath': null,
@@ -571,7 +587,7 @@ const List<Map<String, dynamic>> mekutseriaQdusLibiContent = [
       'prompt': ''
     }
   }
-]; 
+];
 
 const List<Map<String, dynamic>> tselotNabLibiEyesusContent = [
   {

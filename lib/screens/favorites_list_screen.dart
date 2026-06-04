@@ -1,29 +1,22 @@
-// lib/screens/favorites_list_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:dmtsibereket/app_colors.dart';
-import 'package:dmtsibereket/custom_page_route.dart';
-import 'package:dmtsibereket/favorites_manager.dart';
+import 'package:meadi_tsga/custom_page_route.dart';
+import 'package:meadi_tsga/favorites_manager.dart';
 
 // Screens
-import 'package:dmtsibereket/screens/lyrics_screen.dart';
-import 'package:dmtsibereket/screens/prayer_content_screen.dart';
-import 'package:dmtsibereket/screens/quotes_of_saint_screen.dart';
-import 'package:dmtsibereket/screens/saints_history_screen.dart';
-import 'package:dmtsibereket/screens/church_history_screen.dart';
-import 'package:dmtsibereket/screens/doctrine_screen.dart';
-import 'package:dmtsibereket/screens/bible_tradition_screen.dart';
-import 'package:dmtsibereket/screens/social_teaching_screen.dart';
-import 'package:dmtsibereket/screens/spiritual_life_screen.dart';
+import 'package:meadi_tsga/screens/prayer_content_screen.dart';
+import 'package:meadi_tsga/screens/quotes_of_saint_screen.dart';
+import 'package:meadi_tsga/screens/saints_history_screen.dart';
+import 'package:meadi_tsga/screens/church_history_screen.dart';
+import 'package:meadi_tsga/screens/doctrine_screen.dart';
+import 'package:meadi_tsga/screens/spiritual_life_screen.dart';
 
-// Data and Models
-import 'package:dmtsibereket/data/doctrine_data.dart';
-import 'package:dmtsibereket/data/quotes_of_saint_data.dart';
-import 'package:dmtsibereket/data/prayer_content_data.dart';
+import 'package:meadi_tsga/data/quotes_of_saint_data.dart';
+import 'package:meadi_tsga/data/prayer_content_data.dart';
+import '../app_colors.dart';
+import '../data/doctrine_data.dart';
 
-// Helper function needed for this file
 String? _getSafeTitle(Map<dynamic, dynamic> item) {
   if (item['content'] is Map) {
     final content = item['content'] as Map;
@@ -34,6 +27,9 @@ String? _getSafeTitle(Map<dynamic, dynamic> item) {
   return null;
 }
 
+// =======================================================================
+// Screen 1: Favorites Category List (ዝተመሓየሸ)
+// =======================================================================
 class FavoritesCategoryScreen extends StatelessWidget {
   const FavoritesCategoryScreen({super.key});
 
@@ -42,74 +38,173 @@ class FavoritesCategoryScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    // እቶም ምስቲ ሆም ፔጅ ተመሳሰልቲ ዝተገበሩ ናይ ምስሊ ኣይኮናት
     final List<Map<String, dynamic>> categories = [
-      {'title': 'ዝተፈተዉ መዛሙር', 'icon': Icons.music_note_rounded, 'color': Colors.blue.shade700, 'type': FavoriteType.hymn},
-      {'title': 'ዝተፈተዉ ፀሎታት', 'icon': Icons.church_rounded, 'color': Colors.teal.shade600, 'type': FavoriteType.prayer},
-      {'title': 'ዝተፈተዉ ጥቕስታት', 'icon': Icons.format_quote_rounded, 'color': Colors.purple.shade600, 'type': FavoriteType.quote},
-      {'title': 'ታሪኽ ቅዱሳን', 'icon': Icons.person_rounded, 'color': Colors.brown.shade600, 'type': FavoriteType.saintsHistory},
-      {'title': 'ታሪኽ ቤተ-ክርስትያን', 'icon': Icons.auto_stories_rounded, 'color': Colors.indigo.shade600, 'type': FavoriteType.churchHistory},
-      {'title': 'ትምህርተ ሃይማኖት', 'icon': Icons.school_rounded, 'color': Colors.deepPurple.shade600, 'type': FavoriteType.doctrine},
-      {'title': 'መፅሓፍ ቅዱስን ትውፊትን', 'icon': Icons.menu_book_rounded, 'color': Colors.green.shade800, 'type': FavoriteType.bibleTradition},
-      {'title': 'ማሕበራዊ ትምህርቲ', 'icon': Icons.groups_rounded, 'color': Colors.orange.shade800, 'type': FavoriteType.socialTeaching},
-      {'title': 'መንፈሳዊ ህይወት', 'icon': Icons.spa_rounded, 'color': Colors.amber.shade700, 'type': FavoriteType.spiritualLife},
+      {
+        'title': 'ዝተፈተዉ ፀሎታት',
+        'imagePath': 'assets/icons/All_Prayer.jpg',
+        'type': FavoriteType.prayer
+      },
+      {
+        'title': 'ዝተፈተዉ ጥቕስታት',
+        'imagePath': 'assets/icons/quotes.jpg',
+        'type': FavoriteType.quote
+      },
+      {
+        'title': 'ታሪኽ ቅዱሳን',
+        'imagePath': 'assets/icons/sainthistory.jpg',
+        'type': FavoriteType.saintsHistory
+      },
+      {
+        'title': 'ታሪኽ ቤተ-ክርስትያን',
+        'imagePath': 'assets/icons/Churchhistory.jpg',
+        'type': FavoriteType.churchHistory
+      },
+      {
+        'title': 'ትምህርተ ሃይማኖት',
+        'imagePath': 'assets/icons/doctrine.png',
+        'type': FavoriteType.doctrine
+      },
+      {
+        'title': 'መንፈሳዊ ህይወት',
+        'imagePath': 'assets/icons/spirituallife.png',
+        'type': FavoriteType.spiritualLife
+      },
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('ንዋየ-ልበይ (Favorites)', style: GoogleFonts.notoSansEthiopic(fontWeight: FontWeight.bold)),
-        backgroundColor: isDark ? theme.colorScheme.surface : primaryAppBarColor,
-        foregroundColor: isDark ? theme.colorScheme.onSurface : Colors.white,
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: isDark ? null : const BoxDecoration(gradient: refinedPastelGradient),
-        child: AnimationLimiter(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return AnimationConfiguration.staggeredList(
-                position: index,
-                duration: const Duration(milliseconds: 375),
-                child: SlideAnimation(
-                  verticalOffset: 50.0,
-                  child: FadeInAnimation(
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(vertical: 6.0),
-                      elevation: 2,
-                      shadowColor: Colors.black.withOpacity(0.05),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        leading: Icon(category['icon'], color: category['color'], size: 30),
-                        title: Text(
-                          category['title'],
-                          style: GoogleFonts.notoSansEthiopic(fontSize: 17, fontWeight: FontWeight.w600),
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            SlowCupertinoPageRoute(
-                              builder: (context) => FavoritesListScreen(favoriteType: category['type']),
-                            ),
-                          );
-                        },
-                      ),
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+
+            // Back Chevron Appbar title with 38.0 Padding
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const Text(
+                    'ዝፈተኽዎም (Favorites)',
+                    style: TextStyle(
+                      fontFamily: 'Nyala',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Expanded(
+              child: AnimationLimiter(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 38.0, vertical: 8.0), // 38.0 Padding
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        child: FadeInAnimation(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16.0),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(alpha: isDark ? 0.2 : 0.03),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(24),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  SlowCupertinoPageRoute(
+                                    builder: (context) => FavoritesListScreen(
+                                        favoriteType: category['type']),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    // ብ ClipRRect ዝተቖረፀ ውቁብ ናይ ምስሊ ኣይኮን
+                                    Container(
+                                      width: 55,
+                                      height: 55,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Image.asset(
+                                          category['imagePath'],
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        category['title'],
+                                        style: TextStyle(
+                                            fontFamily: 'Nyala',
+                                            fontSize: 18.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black87),
+                                      ),
+                                    ),
+                                    const Icon(Icons.arrow_forward_ios,
+                                        size: 16, color: Colors.grey),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+// =======================================================================
+// Screen 2: Detailed Favorites Category List Items (ዝተመሓየሸ)
+// =======================================================================
 class FavoritesListScreen extends StatefulWidget {
   final FavoriteType favoriteType;
   const FavoritesListScreen({super.key, required this.favoriteType});
@@ -145,39 +240,14 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
 
   String _getAppBarTitle() {
     const titles = {
-      FavoriteType.hymn: 'ዝተፈተዉ መዛሙር',
       FavoriteType.prayer: 'ዝተፈተዉ ፀሎታት',
       FavoriteType.quote: 'ዝተፈተዉ ጥቕስታት',
       FavoriteType.saintsHistory: 'ታሪኽ ቅዱሳን',
       FavoriteType.churchHistory: 'ታሪኽ ቤተ-ክርስትያን',
       FavoriteType.doctrine: 'ትምህርተ ሃይማኖት',
-      FavoriteType.bibleTradition: 'መፅሓፍ ቅዱስን ትውፊትን',
-      FavoriteType.socialTeaching: 'ማሕበራዊ ትምህርቲ',
       FavoriteType.spiritualLife: 'መንፈሳዊ ህይወት',
     };
-    return titles[widget.favoriteType] ?? 'ንዋየ-ልበይ';
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.favorite_border, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'ዝተዓቀበ ንዋየ-ልቢ የለን',
-            style: GoogleFonts.notoSerifEthiopic(fontSize: 18, color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'ሓደ ነገር ንምዕቃብ፡ ኣብ ጎድኑ ዘላ\nምልክት ልቢ (❤️) ጠውቕ።',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.notoSerifEthiopic(fontSize: 15, color: Colors.grey[500]),
-          ),
-        ],
-      ),
-    );
+    return titles[widget.favoriteType] ?? 'ዝፈተኽዎም';
   }
 
   @override
@@ -186,57 +256,109 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getAppBarTitle(), style: GoogleFonts.notoSansEthiopic(fontWeight: FontWeight.bold)),
-        backgroundColor: isDark ? theme.colorScheme.surface : primaryAppBarColor,
-        foregroundColor: isDark ? theme.colorScheme.onSurface : Colors.white,
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: isDark ? null : const BoxDecoration(gradient: refinedPastelGradient),
-        child: _favoriteItems.isEmpty
-            ? _buildEmptyState(context)
-            : AnimationLimiter(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-                  itemCount: _favoriteItems.length,
-                  itemBuilder: (context, index) {
-                    final item = _favoriteItems[index];
-                    return AnimationConfiguration.staggeredList(
-                      position: index,
-                      duration: const Duration(milliseconds: 375),
-                      child: SlideAnimation(
-                        verticalOffset: 50.0,
-                        child: FadeInAnimation(
-                          child: _buildFavoriteTile(context, item),
-                        ),
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+
+            // Back Chevron with 38.0 Padding
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Expanded(
+                    child: Text(
+                      _getAppBarTitle(),
+                      style: const TextStyle(
+                        fontFamily: 'Nyala',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
-                ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Expanded(
+              child: _favoriteItems.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.favorite_border,
+                              size: 80, color: Colors.grey[400]),
+                          const SizedBox(height: 16),
+                          const Text('ኣብዚ ዝተመዝገበ የለን',
+                              style:
+                                  TextStyle(fontFamily: 'Nyala', fontSize: 20)),
+                        ],
+                      ),
+                    )
+                  : AnimationLimiter(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 38.0, vertical: 8.0), // 38.0 Padding
+                        itemCount: _favoriteItems.length,
+                        itemBuilder: (context, index) {
+                          final item = _favoriteItems[index];
+                          return AnimationConfiguration.staggeredList(
+                            position: index,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 50.0,
+                              child: FadeInAnimation(
+                                child: _buildFavoriteTile(context, item),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFavoriteTile(BuildContext context, FavoriteItem item) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     String title = item.content['title'] ?? '...';
     String subtitle = '';
-    Widget leadingIcon;
     Widget? detailScreen;
 
-    switch (item.type) {
-      case FavoriteType.hymn:
-        subtitle = item.content['singer'] ?? '';
-        leadingIcon = Icon(Icons.music_note_rounded, color: theme.primaryColor);
-        detailScreen = LyricsScreen(hymn: item.content);
-        break;
+    // ንነፍሲ ወከፍ ዓውዲ ምስቲ ሆም ፔጅ ዘተሓሳስብ ናይ ምስሊ ኣይኮን ፓዝ (Path)
+    final Map<FavoriteType, String> categoryImages = {
+      FavoriteType.prayer: 'assets/icons/All_Prayer.jpg',
+      FavoriteType.quote: 'assets/icons/quotes.jpg',
+      FavoriteType.saintsHistory: 'assets/icons/sainthistory.jpg',
+      FavoriteType.churchHistory: 'assets/icons/Churchhistory.jpg',
+      FavoriteType.doctrine: 'assets/icons/doctrine.png',
+      FavoriteType.spiritualLife: 'assets/icons/spirituallife.png',
+    };
 
+    final String imagePath =
+        categoryImages[item.type] ?? 'assets/images/others/jesus.jpg';
+
+    switch (item.type) {
       case FavoriteType.prayer:
         subtitle = item.content['parentTitle'] ?? '';
-        leadingIcon = Icon(Icons.church_rounded, color: theme.primaryColor);
         try {
           final String prayerTitle = item.content['title'];
           final String? categoryTitle = item.content['parentTitle'];
@@ -245,26 +367,38 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
           final bool isMysteryPart = (categoryTitle ?? '').contains('ምስጢር');
 
           if (isMysteryPart) {
-            // Reconstruct the full list of 5 mystery parts + the conclusion
             if (categoryTitle == 'ናይ ደስታ ምስጢር') {
-              prayerKeys = rosaryJoyfulPrayerContent.map((item) => _getSafeTitle(item)).whereType<String>().toList();
+              prayerKeys = rosaryJoyfulPrayerContent
+                  .map((item) => _getSafeTitle(item))
+                  .whereType<String>()
+                  .toList();
             } else if (categoryTitle == 'ናይ ብርሃን ምስጢር') {
-              prayerKeys = rosaryLuminousPrayerContent.map((item) => _getSafeTitle(item)).whereType<String>().toList();
+              prayerKeys = rosaryLuminousPrayerContent
+                  .map((item) => _getSafeTitle(item))
+                  .whereType<String>()
+                  .toList();
             } else if (categoryTitle == 'ናይ ሕማም ምስጢር') {
-              prayerKeys = rosarySorrowfulPrayerContent.map((item) => _getSafeTitle(item)).whereType<String>().toList();
-            } else { // 'ናይ ክብሪ ምስጢር'
-              prayerKeys = rosaryGloriousPrayerContent.map((item) => _getSafeTitle(item)).whereType<String>().toList();
+              prayerKeys = rosarySorrowfulPrayerContent
+                  .map((item) => _getSafeTitle(item))
+                  .whereType<String>()
+                  .toList();
+            } else {
+              prayerKeys = rosaryGloriousPrayerContent
+                  .map((item) => _getSafeTitle(item))
+                  .whereType<String>()
+                  .toList();
             }
             prayerKeys.add("መዛዘሚ ፀሎታት");
           } else {
-             // Find the original list of keys for a normal category
             final categoryData = prayerListItems.firstWhere(
               (category) => category['title'] == categoryTitle,
               orElse: () => {},
             );
-             prayerKeys = categoryData.isNotEmpty ? List<String>.from(categoryData['itemKeys']) : [prayerTitle];
+            prayerKeys = categoryData.isNotEmpty
+                ? List<String>.from(categoryData['itemKeys'])
+                : [prayerTitle];
           }
-          
+
           final int initialIndex = prayerKeys.indexOf(prayerTitle);
 
           if (initialIndex != -1) {
@@ -272,31 +406,35 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
               categoryTitle: categoryTitle ?? 'ፀሎታት',
               prayerKeys: prayerKeys,
               initialIndex: initialIndex,
-              displayMode: isMysteryPart ? PrayerDisplayMode.tabs : PrayerDisplayMode.pageView,
+              displayMode: isMysteryPart
+                  ? PrayerDisplayMode.tabs
+                  : PrayerDisplayMode.pageView,
             );
           }
         } catch (e) {
-          debugPrint("Error reconstructing favorite prayer: $e");
           detailScreen = null;
         }
         break;
 
       case FavoriteType.quote:
-        title = '"${(item.content['quote'] as String).substring(0, (item.content['quote'] as String).length > 30 ? 30 : (item.content['quote'] as String).length)}..."';
+        title =
+            '"${(item.content['quote'] as String).substring(0, (item.content['quote'] as String).length > 30 ? 30 : (item.content['quote'] as String).length)}..."';
         subtitle = item.content['author'] ?? 'Unknown';
-        leadingIcon = Icon(Icons.format_quote_rounded, color: theme.primaryColor);
-        final List<String> allTopics = quotesContentData.keys.map((e) => e.toString()).toList();
+        final List<String> allTopics =
+            quotesContentData.keys.map((e) => e.toString()).toList();
         final initialIndex = allTopics.indexOf(item.content['topic']);
         if (initialIndex != -1) {
-          detailScreen = QuotesViewerScreen(allTopics: allTopics, initialIndex: initialIndex);
+          detailScreen = QuotesViewerScreen(
+              allTopics: allTopics, initialIndex: initialIndex);
         }
         break;
 
       case FavoriteType.saintsHistory:
         subtitle = 'ታሪኽ ቅዱሳን';
-        leadingIcon = Icon(Icons.person_rounded, color: theme.primaryColor);
-        final allHeadings = (FavoritesManager.getSaintHeadings(title) ?? [title]);
-        final initialIndex = allHeadings.indexOf(item.content['heading'] ?? title);
+        final allHeadings =
+            (FavoritesManager.getSaintHeadings(title) ?? [title]);
+        final initialIndex =
+            allHeadings.indexOf(item.content['heading'] ?? title);
         detailScreen = SaintSectionViewerScreen(
           saintName: title,
           allHeadings: allHeadings,
@@ -305,12 +443,14 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
         break;
 
       case FavoriteType.doctrine:
-        subtitle = item.content['mainTopicTitle'] ?? '';
-        leadingIcon = Icon(Icons.school_outlined, color: theme.primaryColor);
+        subtitle = 'ትምህርተ ሃይማኖት';
         final mainTopicTitle = item.content['mainTopicTitle'] as String;
-        final mainTopicKey = doctrineTopics.firstWhere((t) => t['title'] == mainTopicTitle, orElse: () => {})['key'];
+        final mainTopicKey = doctrineTopics.firstWhere(
+            (t) => t['title'] == mainTopicTitle,
+            orElse: () => {})['key'];
         final allSubTopics = doctrineDetailsContent[mainTopicKey] ?? [];
-        final initialIndex = allSubTopics.indexWhere((st) => st['title'] == title);
+        final initialIndex =
+            allSubTopics.indexWhere((st) => st['title'] == title);
         if (initialIndex != -1) {
           detailScreen = DoctrineViewerScreen(
             mainTopicTitle: mainTopicTitle,
@@ -319,59 +459,79 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
           );
         }
         break;
-        
+
       case FavoriteType.churchHistory:
-      case FavoriteType.bibleTradition:
-      case FavoriteType.socialTeaching:
       case FavoriteType.spiritualLife:
         subtitle = item.content['categoryTitle'] ?? '...';
-        leadingIcon = Icon(Icons.article_rounded, color: theme.primaryColor);
-        final List<Map<String, dynamic>> allTopics = FavoritesManager.getTopicsForCategory(item.type);
-        final int initialIndex = allTopics.indexWhere((topic) => (topic['title'] as String) == title);
+        final List<Map<String, dynamic>> allTopics =
+            FavoritesManager.getTopicsForCategory(item.type);
+        final int initialIndex = allTopics
+            .indexWhere((topic) => (topic['title'] as String) == title);
         if (initialIndex != -1) {
-          switch (item.type) {
-            case FavoriteType.churchHistory:
-              detailScreen = ChurchHistoryViewerScreen(allTopics: allTopics, initialIndex: initialIndex);
-              break;
-            case FavoriteType.bibleTradition:
-              detailScreen = BibleTraditionViewerScreen(allTopics: allTopics, initialIndex: initialIndex);
-              break;
-            case FavoriteType.socialTeaching:
-              detailScreen = SocialTeachingViewerScreen(allTopics: allTopics, initialIndex: initialIndex);
-              break;
-            case FavoriteType.spiritualLife:
-              detailScreen = SpiritualLifeViewerScreen(allTopics: allTopics, initialIndex: initialIndex);
-              break;
-            default: detailScreen = null;
+          if (item.type == FavoriteType.churchHistory) {
+            detailScreen = ChurchHistoryViewerScreen(
+                allTopics: allTopics, initialIndex: initialIndex);
+          } else {
+            detailScreen = SpiritualLifeViewerScreen(
+                allTopics: allTopics, initialIndex: initialIndex);
           }
         }
         break;
-
-      default:
-        leadingIcon = Icon(Icons.help_outline, color: theme.primaryColor);
-        detailScreen = null;
     }
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6.0),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.05),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: leadingIcon,
-        title: Text(title, style: GoogleFonts.notoSansEthiopic(fontSize: 17, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        title: Text(title,
+            style: TextStyle(
+                fontFamily: 'Nyala',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black87),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+        subtitle: subtitle.isNotEmpty
+            ? Text(subtitle,
+                style: const TextStyle(
+                    fontFamily: 'Nyala',
+                    fontSize: 14,
+                    color: Color(0xFFC61B1B)))
+            : null,
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+          icon: const Icon(Icons.delete_outline_rounded,
+              color: Colors.red, size: 22),
           onPressed: () => _favoritesManager.toggleFavorite(item),
-          tooltip: 'ካብ ንዋየ-ልበይ ኣውፅእ',
         ),
         onTap: () {
           if (detailScreen != null) {
-            Navigator.push(context, SlowCupertinoPageRoute(builder: (context) => detailScreen!));
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("ነዚ ንዋየ-ልቢ ክንከፍቶ ኣይከኣልናን።")));
+            Navigator.push(context,
+                SlowCupertinoPageRoute(builder: (context) => detailScreen!));
           }
         },
       ),

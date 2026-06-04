@@ -1,86 +1,171 @@
-// lib/screens/saints_history_screen.dart
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:dmtsibereket/app_colors.dart';
-import 'package:dmtsibereket/data/saints_history_data.dart';
-import 'package:dmtsibereket/custom_page_route.dart';
-import 'package:dmtsibereket/favorites_manager.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:meadi_tsga/data/saints_history_data.dart';
+import 'package:meadi_tsga/custom_page_route.dart';
+import 'package:meadi_tsga/favorites_manager.dart';
+import '../app_colors.dart';
+import '../utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
 
+// =======================================================================
+// Screen 1: Saints History Main List
+// =======================================================================
 class SaintsHistoryScreen extends StatelessWidget {
   const SaintsHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final List<String> saintNames = saintsHistoryContent.keys.toList();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final List<String> saintNames = saintsHistoryContent.keys.toList();
 
-    // <<< [ለውጢ] እቲ Scaffoldን AppBarን ተኣልዩ >>>
-    // እቲ Widget ሕጂ ነቲ ትሕዝቶ ጥራይ እዩ ዝመልስ
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: isDark ? null : const BoxDecoration(gradient: refinedPastelGradient),
-      child: AnimationLimiter(
-        child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-          itemCount: saintNames.length,
-          itemBuilder: (context, index) {
-            final saintName = saintNames[index];
-            return AnimationConfiguration.staggeredList(
-              position: index,
-              duration: const Duration(milliseconds: 375),
-              child: SlideAnimation(
-                verticalOffset: 50.0,
-                child: FadeInAnimation(
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 6.0),
-                    elevation: 2,
-                    shadowColor: Colors.black.withOpacity(0.05),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      leading: Image.asset(
-                        'assets/icons/saint_history.png', 
-                        width: 30, height: 30, 
-                        color: Colors.brown.shade600,
-                        errorBuilder: (c, e, s) => Icon(Icons.church_outlined, size: 30, color: Colors.brown.shade600),
-                      ),
-                      title: Text(
-                        saintName,
-                        style: GoogleFonts.notoSansEthiopic(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          SlowCupertinoPageRoute(
-                            builder: (context) => SaintTOCScreen(saintName: saintName),
-                          ),
-                        );
-                      },
+    return Scaffold(
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+
+            // Custom App Bar with 38.0 Padding
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const Text(
+                    'ታሪኽ ቅዱሳን',
+                    style: TextStyle(
+                      fontFamily: 'Nyala',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Expanded(
+              child: AnimationLimiter(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 38.0, vertical: 8.0),
+                  itemCount: saintNames.length,
+                  itemBuilder: (context, index) {
+                    final saintName = saintNames[index];
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        child: FadeInAnimation(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16.0),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(alpha: isDark ? 0.2 : 0.03),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(24),
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                Navigator.push(
+                                  context,
+                                  SlowCupertinoPageRoute(
+                                    builder: (context) =>
+                                        SaintTOCScreen(saintName: saintName),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 55,
+                                      height: 55,
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? Colors.grey.shade800
+                                            : const Color(0xFFF0F0F2),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Center(
+                                        child: Image.asset(
+                                          'assets/icons/saint_history.png',
+                                          width: 28,
+                                          height: 28,
+                                          color: const Color(0xFFC61B1B),
+                                          errorBuilder: (c, e, s) => const Icon(
+                                              Icons.church_outlined,
+                                              size: 28,
+                                              color: Color(0xFFC61B1B)),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        saintName,
+                                        style: TextStyle(
+                                          fontFamily: 'Nyala',
+                                          fontSize: 18.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? Colors.white
+                                              : Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 16,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-
+// =======================================================================
+// Screen 2: Table of Contents for a Saint
+// =======================================================================
 class SaintTOCScreen extends StatefulWidget {
   final String saintName;
-
   const SaintTOCScreen({super.key, required this.saintName});
 
   @override
@@ -110,9 +195,9 @@ class _SaintTOCScreenState extends State<SaintTOCScreen> {
         extractedHeadings.add(block['text'] as String);
       }
     }
-    
+
     if (extractedHeadings.isEmpty && contentBlocks.isNotEmpty) {
-       extractedHeadings.add(widget.saintName);
+      extractedHeadings.add(widget.saintName);
     }
 
     setState(() {
@@ -127,50 +212,147 @@ class _SaintTOCScreenState extends State<SaintTOCScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.saintName, style: GoogleFonts.notoSansEthiopic(fontWeight: FontWeight.bold)),
-        backgroundColor: isDark ? theme.colorScheme.surface : primaryAppBarColor,
-        foregroundColor: isDark ? theme.colorScheme.onSurface : Colors.white,
-      ),
-      body: Container(
-        decoration: isDark ? null : const BoxDecoration(gradient: refinedPastelGradient),
-        child: !_hasContent
-            ? const Center(child: Text('ትሕዝቶ ኣይተረኽበን።'))
-            : ListView.builder(
-                padding: const EdgeInsets.all(12.0),
-                itemCount: _headings.length,
-                itemBuilder: (context, index) {
-                  final heading = _headings[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: ListTile(
-                      leading: CircleAvatar(child: Text('${index + 1}')),
-                      title: Text(heading, style: theme.textTheme.titleMedium),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          SlowCupertinoPageRoute(
-                            builder: (context) => SaintSectionViewerScreen(
-                              saintName: widget.saintName,
-                              allHeadings: _headings,
-                              initialIndex: index,
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+
+            // Custom Back Chevron Appbar
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.saintName,
+                      style: const TextStyle(
+                        fontFamily: 'Nyala',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Expanded(
+              child: !_hasContent
+                  ? const Center(
+                      child: Text('ትሕዝቶ ኣይተረኽበን።',
+                          style: TextStyle(fontFamily: 'Nyala', fontSize: 18)))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 38.0, vertical: 8.0),
+                      itemCount: _headings.length,
+                      itemBuilder: (context, index) {
+                        final heading = _headings[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16.0),
+                          decoration: BoxDecoration(
+                            color:
+                                isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black
+                                    .withValues(alpha: isDark ? 0.2 : 0.03),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                SlowCupertinoPageRoute(
+                                  builder: (context) =>
+                                      SaintSectionViewerScreen(
+                                    saintName: widget.saintName,
+                                    allHeadings: _headings,
+                                    initialIndex: index,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 55,
+                                    height: 55,
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? Colors.grey.shade800
+                                          : const Color(0xFFF0F0F2),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '0${index + 1}',
+                                        style: const TextStyle(
+                                          fontFamily: 'Nyala',
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFFC61B1B),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Text(
+                                      heading,
+                                      style: TextStyle(
+                                        fontFamily: 'Nyala',
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 16,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
                       },
                     ),
-                  );
-                },
-              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// =========================================================
-// Screen 3: ንኽስሓብ ዝኽእል PageView ዝሓዘ ስክሪን
-// =========================================================
+// =======================================================================
+// Screen 3: Saints History Viewer
+// =======================================================================
 class SaintSectionViewerScreen extends StatefulWidget {
   final String saintName;
   final List<String> allHeadings;
@@ -184,32 +366,53 @@ class SaintSectionViewerScreen extends StatefulWidget {
   });
 
   @override
-  State<SaintSectionViewerScreen> createState() => _SaintSectionViewerScreenState();
+  State<SaintSectionViewerScreen> createState() =>
+      _SaintSectionViewerScreenState();
 }
 
 class _SaintSectionViewerScreenState extends State<SaintSectionViewerScreen> {
   late final PageController _pageController;
   late int _currentIndex;
-  // === [ለውጢ] FavoritesManager ተወሲኹ ===
   final FavoritesManager _favoritesManager = FavoritesManager();
+  late DateTime _startTime; // ቆፀራ ግዘ
 
   @override
   void initState() {
     super.initState();
+    _startTime = DateTime.now(); // ግዘ ምጅማር
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: widget.initialIndex);
+
+    // 🌟 ገጽ ኣብ ዝተኸፈተሉ ቕጽበት እቨንት ምምዝጋብ (ጠለብ 4)
+    _trackViewDetail(_currentIndex);
+  }
+
+  void _trackViewDetail(int index) {
+    AnalyticsService.track('view_detail', {
+      'category': 'ታሪኽ ቅዱሳን',
+      'title': '${widget.saintName} - ${widget.allHeadings[index]}',
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+
+    // ዝጸንሑሉ ሰኮንዶች ምዝገባ (Time Spent on Content)
+    final int secondsSpent = DateTime.now().difference(_startTime).inSeconds;
+    AnalyticsService.track('time_spent_on_detail', {
+      'category': 'ታሪኽ ቅዱሳን',
+      'title': '${widget.saintName} - ${widget.allHeadings[_currentIndex]}',
+      'seconds': secondsSpent,
+    });
+
     super.dispose();
   }
-  
-  // === [ለውጢ] ን Favorites ዝኸውን function ===
+
   Future<void> _toggleFavorite() async {
     HapticFeedback.lightImpact();
-    final hasPermission = await _favoritesManager.checkAndShowPermissionDialog(context);
+    final hasPermission =
+        await _favoritesManager.checkAndShowPermissionDialog(context);
     if (!hasPermission || !mounted) return;
 
     final currentHeading = widget.allHeadings[_currentIndex];
@@ -225,47 +428,104 @@ class _SaintSectionViewerScreenState extends State<SaintSectionViewerScreen> {
       dateAdded: DateTime.now(),
     );
 
+    // ቶፕ ዝተፈተዉ ምምዝጋብ (ጠለብ 6)
+    if (!_favoritesManager.isFavorite(favoriteId)) {
+      AnalyticsService.track('favorite_added', {
+        'category': 'ታሪኽ ቅዱሳን',
+        'title': '${widget.saintName} - $currentHeading',
+      });
+    }
+
     await _favoritesManager.toggleFavorite(favoriteItem);
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    
-    // === [ለውጢ] ን Favorites ዝኸውን ሎጂክ ===
     final currentHeading = widget.allHeadings[_currentIndex];
     final favoriteId = 'saintsHistory_${widget.saintName}_$currentHeading';
     final isCurrentlyFavorite = _favoritesManager.isFavorite(favoriteId);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
       appBar: AppBar(
-        title: Text(widget.allHeadings[_currentIndex], 
-          style: GoogleFonts.notoSansEthiopic(fontWeight: FontWeight.bold),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
+        title: Text(
+          widget.allHeadings[_currentIndex],
+          style: TextStyle(
+            fontFamily: 'Nyala',
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.black87,
+            fontSize: 22,
+          ),
           overflow: TextOverflow.ellipsis,
         ),
-        backgroundColor: isDark ? theme.colorScheme.surface : primaryAppBarColor,
-        foregroundColor: isDark ? theme.colorScheme.onSurface : Colors.white,
         actions: [
-          // === [ለውጢ] Favoritesን Next/Previousን ዝሓዘ actions ===
           IconButton(
-            icon: Icon(isCurrentlyFavorite ? Icons.favorite : Icons.favorite_border),
-            color: isCurrentlyFavorite ? Colors.red.shade400 : null,
+            icon: Icon(
+                isCurrentlyFavorite
+                    ? Icons.star_rounded
+                    : Icons.star_outline_rounded,
+                size: 26),
+            color: isCurrentlyFavorite
+                ? const Color(0xFFC61B1B)
+                : (isDark ? Colors.white70 : Colors.black54),
             onPressed: _toggleFavorite,
           ),
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(Icons.arrow_back_ios, size: 18),
             onPressed: _currentIndex > 0
-                ? () => _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut)
+                ? () {
+                    // ሓድሽ ምዕራፍ ክቕየር ከሎ ነቲ ዝነበረ ግዘ መዝጊብና ሓድሽ ግዘ ንጅምር
+                    final int secondsSpent =
+                        DateTime.now().difference(_startTime).inSeconds;
+                    AnalyticsService.track('time_spent_on_detail', {
+                      'category': 'ታሪኽ ቅዱሳን',
+                      'title':
+                          '${widget.saintName} - ${widget.allHeadings[_currentIndex]}',
+                      'seconds': secondsSpent,
+                    });
+                    _startTime = DateTime.now(); // ሓድሽ ግዘ
+
+                    // 🌟 ሓዱሽ እቨንት ምምዝጋብ
+                    _trackViewDetail(_currentIndex - 1);
+
+                    _pageController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut);
+                  }
                 : null,
           ),
           IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
+            icon: const Icon(Icons.arrow_forward_ios, size: 18),
             onPressed: _currentIndex < widget.allHeadings.length - 1
-                ? () => _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut)
+                ? () {
+                    // ሓድሽ ምዕራፍ ክቕየር ከሎ ነቲ ዝነበረ ግዘ መዝጊብና ሓድሽ ግዘ ንጅምር
+                    final int secondsSpent =
+                        DateTime.now().difference(_startTime).inSeconds;
+                    AnalyticsService.track('time_spent_on_detail', {
+                      'category': 'ታሪኽ ቅዱሳን',
+                      'title':
+                          '${widget.saintName} - ${widget.allHeadings[_currentIndex]}',
+                      'seconds': secondsSpent,
+                    });
+                    _startTime = DateTime.now(); // ሓድሽ ግዘ
+
+                    // 🌟 ሓዱሽ እቨንት ምምዝጋብ
+                    _trackViewDetail(_currentIndex + 1);
+
+                    _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut);
+                  }
                 : null,
           ),
+          const SizedBox(width: 20),
         ],
       ),
       body: PageView.builder(
@@ -287,9 +547,9 @@ class _SaintSectionViewerScreenState extends State<SaintSectionViewerScreen> {
   }
 }
 
-// =========================================================
-// Screen 4: ሓደ ውልቀ-ገፅ ናይ ታሪኽ ዘርኢ Widget
-// =========================================================
+// =======================================================================
+// Screen 4: Saints Section Page Content Viewer (Modified)
+// =======================================================================
 class _SaintSectionPage extends StatelessWidget {
   final String saintName;
   final String heading;
@@ -309,14 +569,15 @@ class _SaintSectionPage extends StatelessWidget {
 
     for (final block in allBlocks) {
       if (block['type'] == 'heading') {
-        final currentHeading = allBlocks.length == 1 && allBlocks.every((b) => b['type'] != 'heading') 
-                               ? saintName 
-                               : block['text'];
+        final currentHeading = allBlocks.length == 1 &&
+                allBlocks.every((b) => b['type'] != 'heading')
+            ? saintName
+            : block['text'];
 
         if (currentHeading == heading) {
           isTargetSection = true;
         } else if (isTargetSection) {
-          break; 
+          break;
         }
       }
       if (isTargetSection) {
@@ -328,23 +589,120 @@ class _SaintSectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final contentBlocks = _getSectionContent();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final professionalBackgroundColor = isDark ? const Color(0xFF121212) : const Color(0xFFFFFDF6);
-    final contentBlocks = _getSectionContent();
+
+    if (contentBlocks.isEmpty) {
+      return const Center(
+          child: Text("ትሕዝቶ ኣይተረኽበን።",
+              style: TextStyle(fontFamily: 'Nyala', fontSize: 20)));
+    }
+
+    final List<Widget> sequentialWidgets = [];
+    List<Map<String, dynamic>> currentTextGroup = [];
+
+    // Process blocks in their original database order
+    for (var block in contentBlocks) {
+      final String type = block['type'] as String? ?? '';
+
+      if (type == 'image') {
+        // First, if there are accumulated text blocks, build them into a Text Card
+        if (currentTextGroup.isNotEmpty) {
+          sequentialWidgets
+              .add(_buildTextCard(context, currentTextGroup, isDark));
+          sequentialWidgets.add(const SizedBox(height: 16));
+          currentTextGroup = [];
+        }
+        // Then build and insert the image card in its correct position
+        sequentialWidgets.add(_buildImageBlock(context, block));
+        sequentialWidgets.add(const SizedBox(height: 16));
+      } else {
+        // Skip first block if it's the heading matching the section title
+        if (type == 'heading' && block['text'] == heading) {
+          continue;
+        }
+        currentTextGroup.add(block);
+      }
+    }
+
+    // Append any remaining text blocks
+    if (currentTextGroup.isNotEmpty) {
+      sequentialWidgets.add(_buildTextCard(context, currentTextGroup, isDark));
+    }
+
+    // Clean up trailing vertical spacing
+    if (sequentialWidgets.isNotEmpty && sequentialWidgets.last is SizedBox) {
+      sequentialWidgets.removeLast();
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 38.0, vertical: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ...sequentialWidgets,
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  // Unified Text container matching the exact original design
+  Widget _buildTextCard(BuildContext context,
+      List<Map<String, dynamic>> textBlocks, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: textBlocks
+            .map((txtBlock) => _buildContentItem(context, txtBlock))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildImageBlock(BuildContext context, Map<String, dynamic> block) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      color: professionalBackgroundColor,
-      child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
-        itemCount: contentBlocks.length,
-        itemBuilder: (context, index) {
-          final block = contentBlocks[index];
-          if (index == 0 && block['type'] == 'heading') {
-            return const SizedBox.shrink();
-          }
-          return _buildContentItem(context, block);
-        },
+      height: 300,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20.0),
+        child: Image.asset(
+          block['path'] as String,
+          fit: BoxFit.contain, // Allow full portrait rendering safely
+          errorBuilder: (ctx, err, stack) => Container(
+              height: 200,
+              color: Colors.grey[300],
+              child: const Center(
+                  child:
+                      Icon(Icons.broken_image, color: Colors.grey, size: 40))),
+        ),
       ),
     );
   }
@@ -352,27 +710,34 @@ class _SaintSectionPage extends StatelessWidget {
   Widget _buildContentItem(BuildContext context, Map<String, dynamic> block) {
     final String type = block['type'] as String? ?? '';
     final String text = block['text'] as String? ?? '';
-    final theme = Theme.of(context);
 
     switch (type) {
       case 'heading':
         return Padding(
-          padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
+          padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(text, style: GoogleFonts.notoSerifEthiopic(
-                  fontSize: 28, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+              Text(text,
+                  style: const TextStyle(
+                      fontFamily: 'Nyala',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFC61B1B))),
               const SizedBox(height: 8),
-              Divider(color: theme.colorScheme.primary.withOpacity(0.3)),
+              const Divider(color: Color(0xFFC61B1B)),
             ],
           ),
         );
       case 'subsection_title':
         return Padding(
           padding: const EdgeInsets.only(top: 20.0, bottom: 8.0),
-          child: Text(text, style: GoogleFonts.notoSansEthiopic(
-              fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.secondary)),
+          child: Text(text,
+              style: const TextStyle(
+                  fontFamily: 'Nyala',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFC61B1B))),
         );
       case 'paragraph':
         return _buildRichTextParagraph(context, text);
@@ -382,34 +747,18 @@ class _SaintSectionPage extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('• ', style: GoogleFonts.notoSerifEthiopic(fontSize: 18, height: 1.7, fontWeight: FontWeight.bold)),
+              const Text('• ',
+                  style: TextStyle(
+                      fontFamily: 'Nyala',
+                      fontSize: 18,
+                      height: 1.6,
+                      fontWeight: FontWeight.bold)),
               Expanded(
                 child: SelectableText(text,
-                    style: GoogleFonts.notoSerifEthiopic(fontSize: 18, height: 1.7),
+                    style: const TextStyle(
+                        fontFamily: 'Nyala', fontSize: 18, height: 1.6),
                     textAlign: TextAlign.justify),
               ),
-            ],
-          ),
-        );
-      case 'image':
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: Image.asset(block['path'] as String, fit: BoxFit.contain,
-                  errorBuilder: (ctx, err, stack) => Container(height: 200, color: Colors.grey[300],
-                      child: Center(child: Icon(Icons.broken_image, color: Colors.grey[600], size: 40))),
-                ),
-              ),
-              if (block['caption'] != null && (block['caption'] as String).isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(block['caption'],
-                      style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
-                      textAlign: TextAlign.center),
-                ),
             ],
           ),
         );
@@ -422,11 +771,15 @@ class _SaintSectionPage extends StatelessWidget {
 
   Widget _buildRichTextParagraph(BuildContext context, String text) {
     final theme = Theme.of(context);
-    final baseStyle = GoogleFonts.notoSerifEthiopic(fontSize: 18, height: 1.7);
-    final boldStyle = baseStyle.copyWith(fontWeight: FontWeight.bold);
+    final baseStyle = TextStyle(
+        fontFamily: 'Nyala',
+        fontSize: 18,
+        height: 1.6,
+        color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.9));
+    final boldStyle = baseStyle.copyWith(
+        fontWeight: FontWeight.bold, color: const Color(0xFFC61B1B));
 
     final RegExp boldRegex = RegExp(r'\*\*(.*?)\*\*');
-    
     List<TextSpan> spans = [];
     int lastMatchEnd = 0;
 
@@ -434,9 +787,7 @@ class _SaintSectionPage extends StatelessWidget {
       if (match.start > lastMatchEnd) {
         spans.add(TextSpan(text: text.substring(lastMatchEnd, match.start)));
       }
-      
       spans.add(TextSpan(text: match.group(1), style: boldStyle));
-      
       lastMatchEnd = match.end;
     }
 

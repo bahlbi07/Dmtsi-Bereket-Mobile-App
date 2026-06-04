@@ -24,6 +24,7 @@ if (keyPropertiesFile.exists()) {
 
 
 android {
+    ndkVersion = "28.2.13676358"
     namespace = "com.BHLabs.catholicapp"
     compileSdk = 36
     
@@ -47,12 +48,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     
     sourceSets {

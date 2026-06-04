@@ -1,27 +1,19 @@
-// lib/favorites_manager.dart
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:dmtsibereket/data/saints_history_data.dart';
-import 'package:dmtsibereket/data/church_history_data.dart';
-import 'package:dmtsibereket/data/bible_tradition_data.dart';
-import 'package:dmtsibereket/data/social_teaching_data.dart';
-import 'package:dmtsibereket/data/spiritual_life_data.dart';
-// === [ለውጢ] ን Doctrine ዝኸውን ዳታ ተወሲኹ ===
-import 'package:dmtsibereket/data/doctrine_data.dart';
+import 'package:meadi_tsga/data/saints_history_data.dart';
+import 'package:meadi_tsga/data/church_history_data.dart';
+import 'package:meadi_tsga/data/spiritual_life_data.dart';
+import 'package:meadi_tsga/data/doctrine_data.dart';
 
+// <<< መዛሙር፣ መፅሓፍ ቅዱስን ማሕበራዊ ትምህርትን ካብዚ ጠፊኦም ኣለዉ >>>
 enum FavoriteType {
-  hymn,
   prayer,
   quote,
   saintsHistory,
   churchHistory,
   doctrine,
-  bibleTradition,
-  socialTeaching,
   spiritualLife
 }
 
@@ -65,7 +57,8 @@ class FavoritesManager {
   static const _favoritesKey = 'favorites_list_v2';
   static const _permissionKey = 'favorites_permission_granted';
 
-  final ValueNotifier<List<FavoriteItem>> _favoritesNotifier = ValueNotifier([]);
+  final ValueNotifier<List<FavoriteItem>> _favoritesNotifier =
+      ValueNotifier([]);
   ValueNotifier<List<FavoriteItem>> get favoritesNotifier => _favoritesNotifier;
 
   Future<void> init() async {
@@ -87,18 +80,22 @@ class FavoritesManager {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('ፍቓድ መኽዘን', style: GoogleFonts.notoSerifEthiopic()),
-          content: Text(
-            "'ንዋየ-ልበይ' (Favorites) ዝበሃል ተግባር ንምጥቃም፡ እቲ እትፈትውዎ ትሕዝቶ ኣብዚ ስልኪ'ዚ ክንዕቅብ ፍቓድኩም ሃቡና። እዚ ምንም ዓይነት ውልቃዊ ሓበሬታ ኣይእክብን እዩ።",
-            style: GoogleFonts.notoSerifEthiopic(height: 1.6),
+          title: const Text('ፍቓድ መኽዘን',
+              style:
+                  TextStyle(fontFamily: 'Nyala', fontWeight: FontWeight.bold)),
+          content: const Text(
+            "'ዝፈተኽዎም' (Favorites) ዝበሃል ተግባር ንምጥቃም፡ እቲ እትፈትውዎ ትሕዝቶ ኣብዚ ስልኪ'ዚ ክንዕቀብ ፍቃድ ሃቡና።",
+            style: TextStyle(fontFamily: 'Nyala', fontSize: 18, height: 1.6),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('ኣይፈቅድን'),
+              child: const Text('ኣይፈቅድን',
+                  style: TextStyle(fontFamily: 'Nyala', fontSize: 18)),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: const Text('እፈቅድ እየ'),
+              child: const Text('እፈቅድ እየ',
+                  style: TextStyle(fontFamily: 'Nyala', fontSize: 18)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -148,15 +145,13 @@ class FavoritesManager {
     if (favoritesJson != null) {
       _favoritesNotifier.value = favoritesJson
           .map((item) {
-              try {
-                return FavoriteItem.fromJson(json.decode(item));
-              } catch (e) {
-                // Return a dummy/null item or handle the error gracefully
-                debugPrint("Error decoding favorite item: $e");
-                return null;
-              }
-            })
-          .where((item) => item != null) // Filter out any nulls from decoding errors
+            try {
+              return FavoriteItem.fromJson(json.decode(item));
+            } catch (e) {
+              return null;
+            }
+          })
+          .where((item) => item != null)
           .cast<FavoriteItem>()
           .toList();
     }
@@ -175,21 +170,20 @@ class FavoritesManager {
     return headings.isNotEmpty ? headings : [saintName];
   }
 
-  // === [ለውጢ] ንኹሉ Categories ዝምልስ ሓጋዚ function ===
   static List<Map<String, dynamic>> getTopicsForCategory(FavoriteType type) {
     switch (type) {
       case FavoriteType.churchHistory:
         return [...churchHistoryPartOne, ...churchHistoryPartTwo].map((c) {
-          return {'title': c['title']!, 'content': [{'type': 'paragraph', 'text': c['content']!}]};
+          return {
+            'title': c['title']!,
+            'content': [
+              {'type': 'paragraph', 'text': c['content']!}
+            ]
+          };
         }).toList();
-      case FavoriteType.bibleTradition:
-        return bibleTraditionTopics;
-      case FavoriteType.socialTeaching:
-        return socialTeachingTopics;
       case FavoriteType.spiritualLife:
         return spiritualLifeTopics;
       case FavoriteType.doctrine:
-        // Doctrine has a nested structure, so we flatten it for this helper
         List<Map<String, dynamic>> allSubTopics = [];
         doctrineDetailsContent.forEach((key, value) {
           allSubTopics.addAll(value);

@@ -29,7 +29,7 @@
     </queries>
 
     <application
-        android:label="መኣዲ ፀጋ"
+        android:label="መኣዲ ጸጋ"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

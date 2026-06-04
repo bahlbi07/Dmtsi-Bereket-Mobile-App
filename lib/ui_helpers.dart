@@ -1,19 +1,41 @@
-// lib/models/ui_helpers.dart
+// lib/ui_helpers.dart
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icons, Colors, FontStyle, FontWeight, Image;
+import 'package:flutter/material.dart'
+    show Icons, Colors, FontStyle, FontWeight, Image;
+
+/// ንኹሎም ገፃት ዘገልግል ማእኸላይ ናይ ፎንት ዓቐን መቆፃፀሪ (Global Font Controller)
+class FontSizeController {
+  // እቲ ንቡር መበገሲ ዓቐን (1.0) እዩ። ካብ 0.8 ክሳብ 1.4 ክኸውን ይኽእል።
+  static final ValueNotifier<double> multiplier = ValueNotifier<double>(1.0);
+
+  static void increase() {
+    if (multiplier.value < 1.4) {
+      multiplier.value =
+          double.parse((multiplier.value + 0.1).toStringAsFixed(1));
+    }
+  }
+
+  static void decrease() {
+    if (multiplier.value > 0.8) {
+      multiplier.value =
+          double.parse((multiplier.value - 0.1).toStringAsFixed(1));
+    }
+  }
+}
 
 Widget buildSectionTitle(BuildContext context, String title) {
-  final textColor = CupertinoDynamicColor.resolve(CupertinoColors.label, context);
+  final textColor =
+      CupertinoDynamicColor.resolve(CupertinoColors.label, context);
   return Padding(
     padding: const EdgeInsets.only(bottom: 12.0, top: 12.0),
     child: Text(
       title,
       style: CupertinoTheme.of(context).textTheme.navTitleTextStyle.copyWith(
-        color: textColor,
-        fontWeight: FontWeight.bold,
-        decoration: TextDecoration.none,
-      ),
+            color: textColor,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.none,
+          ),
     ),
   );
 }
@@ -24,28 +46,29 @@ Widget buildSubSectionTitle(BuildContext context, String title) {
     child: Text(
       title,
       style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-        fontWeight: FontWeight.w600,
-        fontStyle: FontStyle.italic,
-        color: CupertinoColors.secondaryLabel.resolveFrom(context),
-        fontSize: 18,
-        decoration: TextDecoration.none,
-      ),
+            fontWeight: FontWeight.w600,
+            fontStyle: FontStyle.italic,
+            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            fontSize: 18,
+            decoration: TextDecoration.none,
+          ),
     ),
   );
 }
 
 Widget buildParagraph(BuildContext context, String text) {
-  final textColor = CupertinoDynamicColor.resolve(CupertinoColors.label, context);
+  final textColor =
+      CupertinoDynamicColor.resolve(CupertinoColors.label, context);
   return Padding(
     padding: const EdgeInsets.only(bottom: 12.0),
     child: Text(
       text,
       style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-        height: 1.6,
-        fontSize: 17,
-        color: textColor,
-        decoration: TextDecoration.none,
-      ),
+            height: 1.6,
+            fontSize: 17,
+            color: textColor,
+            decoration: TextDecoration.none,
+          ),
       textAlign: TextAlign.justify,
     ),
   );
@@ -60,19 +83,19 @@ Widget buildListItem(BuildContext context, String text) {
         Text(
           '• ',
           style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            decoration: TextDecoration.none,
-          ),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                decoration: TextDecoration.none,
+              ),
         ),
         Expanded(
           child: Text(
             text,
             style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-              height: 1.6,
-              fontSize: 17,
-              decoration: TextDecoration.none,
-            ),
+                  height: 1.6,
+                  fontSize: 17,
+                  decoration: TextDecoration.none,
+                ),
             textAlign: TextAlign.justify,
           ),
         ),
@@ -105,7 +128,9 @@ Widget buildImageWithCaption({
               return Container(
                 height: imageHeight,
                 color: Colors.grey[300],
-                child: Center(child: Icon(Icons.broken_image, color: Colors.grey[600], size: 40)),
+                child: Center(
+                    child: Icon(Icons.broken_image,
+                        color: Colors.grey[600], size: 40)),
               );
             },
           ),
@@ -113,12 +138,14 @@ Widget buildImageWithCaption({
       ),
       if (caption != null && caption.isNotEmpty)
         Padding(
-          padding: const EdgeInsets.only(top: 0.0, bottom: 8.0, left: 4.0, right: 4.0),
+          padding: const EdgeInsets.only(
+              top: 0.0, bottom: 8.0, left: 4.0, right: 4.0),
           child: Text(
             caption,
-            style: CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(
-              fontStyle: FontStyle.italic,
-            ),
+            style:
+                CupertinoTheme.of(context).textTheme.tabLabelTextStyle.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
             textAlign: TextAlign.center,
           ),
         ),
