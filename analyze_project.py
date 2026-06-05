@@ -4,7 +4,7 @@ import os
 import time
 
 # 1. ናትካ API Key ኣብዚ የእቱ
-API_KEY = "AIzaSyA1zJL6PQB0QLw4--ORsVs_v6mKPHAERBQ" 
+API_KEY = "YOUR_API_KEY_HERE" 
 client = genai.Client(api_key=API_KEY)
 
 project_path = './lib' 
