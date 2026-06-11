@@ -22,7 +22,6 @@ if (keyPropertiesFile.exists()) {
     keyProperties.load(FileInputStream(keyPropertiesFile))
 }
 
-
 android {
     ndkVersion = "28.2.13676358"
     namespace = "com.BHLabs.catholicapp"
@@ -41,16 +40,14 @@ android {
 
     defaultConfig {
         applicationId = "com.BHLabs.catholicapp"
-        minSdk = flutter.minSdkVersion
+        minSdk = flutter.minSdkVersion // 🌟 [ተስተካኺሉ] - ንኹሉ ትሑት ቨርዥን ኣንድሮይድ መረጋገጺ
         targetSdk = 36
         versionCode = flutterVersionCode.toInt()
         versionName = flutterVersionName
 
-        // [ወሰኽ 1]፦ MultiDex ንናይ ቀደም ስልኪታት ኣገዳሲ እዩ (ከይዕጾ ይከላኸል)
-        multiDexEnabled = true
+        // 🌟 [ተስተካኺሉ]፦ API 21+ ካብ ኾነ Legacy MultiDex ኣየድልይን (Native Multidex ባዕሉ ኣለዎ)
+        multiDexEnabled = false
 
-        // [ወሰኽ 2]፦ ንኹሉ ኣርክቴክቸር ዝድግፍ (ARM32, ARM64, x86) ንምግባር
-        // እዚ ኮድ እዩ እቲ ኣፕሊኬሽንካ ብዘንደር ክለኣኽ ከሎ ኣብ ዝኾነት ሞባይል ንክሰርሕ ዝገብሮ።
         ndk {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
         }
@@ -71,14 +68,9 @@ android {
 
     buildTypes {
         getByName("release") {
-            // 1. ናይ ምፍራም (Signing) ምድላው
             signingConfig = signingConfigs.getByName("release")
-
-            // 2. ናይ ኮድ ምጽቃጥ (R8/ProGuard)
             isMinifyEnabled = false
             isShrinkResources = false
-            
-            // 3. ናይ ProGuard ሕግታት ዝሕዝ ፋይል
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -89,10 +81,5 @@ flutter {
 }
 
 dependencies {
-    // [ወሰኽ 3]፦ MultiDex ንምድጋፍ ዝተወሰኸ ላይብረሪ
-    implementation("androidx.multidex:multidex:2.0.1")
-
-    // እዚ መስመር እዚ ኣብቲ ቀንዲ ናይ ፕሮጀክት gradle ፋይል (android/build.gradle.kts)
-    // ስለ ዝግለጽ፡ ኣብዚ ምውሳኹ ኣየድልን እዩ። እንተደኣ ጸገም ኣምጺኡ ግን ክትመልሶ ትኽእል ኢኻ።
-    // implementation(kotlin("stdlib-jdk8"))
+    // Legacy multidex 2.0.1 ፅሩይ ተገይሩ ኣሎ (ን API 21+ ኣየድልይን እዩ)
 }

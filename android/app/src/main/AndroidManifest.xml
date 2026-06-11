@@ -1,27 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- መጀመርታ ንበይኑ ዝኾነ ፍቓድ (Permission) እንተደኣ ኣድልዩካ ኣብዚ ትውስኾ -->
-    <!-- ንኣብነት፡ <uses-permission android:name="android.permission.INTERNET" /> -->
-    <!-- Flutter ባዕሉ እዚ የድልዮ እዩ -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
-    <!-- 
-      Queries block: ን url_launcherን ካልኦት ፕላጊናትን ኣገዳሲ እዩ።
-      እዚ ን Android 11+ (API 30+) የድሊ።
-    -->
     <queries>
-        <!-- እዚ ን https:// scheme ንኽሰርሕ (ን url_launcher) -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="https" />
         </intent>
-        <!-- እዚ ን http:// scheme ንኽሰርሕ -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="http" />
         </intent>
-        <!-- እዚ ን ProcessTextPlugin -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

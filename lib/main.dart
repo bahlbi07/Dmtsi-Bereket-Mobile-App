@@ -6,19 +6,14 @@ import 'favorites_manager.dart';
 import 'ui_helpers.dart'; // FontSizeController ንምርካብ ዝተወሰኸ
 import 'utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
 
-// ማእኸላይ ናይ ቴማ (Theme) መቆጻጻሪ መታን ዳርክ/ላይት ሞድ ብቐሊሉ ክቕየር
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Favorites Manager ምድላው
   await FavoritesManager().init();
-
-  // ሓዱሽ ኣናሊቲክስ ሰርቪስ ምጅማር
   await AnalyticsService.init();
 
-  // ፖርትሬት (Portrait) ጥራይ ንኽኸውን
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   runApp(const MyApp());
@@ -32,7 +27,6 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (context, currentMode, child) {
-        // ንፎንት ሳይዝ ለውጢ ዝሰምዕ መቆጻጻሪ
         return ListenableBuilder(
           listenable: FontSizeController.multiplier,
           builder: (context, _) {
@@ -40,10 +34,8 @@ class MyApp extends StatelessWidget {
               title: 'መኣዲ ጸጋ',
               theme: lightTheme,
               darkTheme: darkTheme,
-              themeMode: currentMode, // ብ ValueNotifier ዝቆጻጸር
+              themeMode: currentMode,
               debugShowCheckedModeBanner: false,
-
-              // ንመላእ ኣፕሊኬሽን (Global) ዘገልግል ናይ ጽሑፍ መለክዒ (Text Scaling)
               builder: (context, child) {
                 return MediaQuery(
                   data: MediaQuery.of(context).copyWith(
@@ -53,7 +45,6 @@ class MyApp extends StatelessWidget {
                   child: child!,
                 );
               },
-
               home: const MeadiTsegaHomePage(),
             );
           },

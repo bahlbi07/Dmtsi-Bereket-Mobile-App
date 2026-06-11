@@ -46,18 +46,17 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
     _loadAppData();
   }
 
-  // 🌟 ሓዱሽ ዝተወሰኸ፡ ናይ ፕለይ ስቶር ኣውቶማቲክ ኣፕዴት መቆጻጻሪ
+  // 🌟 ዝተመሓየሸ፦ ብዘንደር ንዝተላእኩን ፕለይ ስቶር ንዘይብሎምን ስልካታት ብስቕታ ዝሓልፍ ውሑስ መቆጻጻሪ
   Future<void> _checkForUpdate() async {
     if (Platform.isAndroid) {
       try {
         final updateInfo = await InAppUpdate.checkForUpdate();
         if (updateInfo.updateAvailability ==
             UpdateAvailability.updateAvailable) {
-          // ቀጥታ ነቲ ኣብ ስእሊ ዘርኣኻኒ ናይ Google Play Immediate Update ገጽ ይከፍቶ
           await InAppUpdate.performImmediateUpdate();
         }
       } catch (e) {
-        // ገለ ጸገም እንተጋጢሙ ንተጠቃሚ ከየደናገረ ብስቕታ ይሓልፍ፣ ኣብ ኣናሊቲክስ እውን ይምዝገብ
+        // ዝኾነ ናይ ኔትወርክ ወይ የለን ፕለይ ስቶር ጌጋ (PlatformException) እንተጋጢሙ ብስቕታ ይሓልፍ (ንኣፕሊኬሽን ኣይዓጽዎን) [1]
         AnalyticsService.track('in_app_update_failed', {
           'error': e.toString(),
         });
@@ -116,7 +115,7 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
       setState(() {
         _isLoading = false;
       });
-      _checkForUpdate(); // 🌟 ሓዱሽ ዝተወሰኸ (ስፕላሽ ሎዲንግ ምስ ተወድአ ኣፕዴት ይፍትሽ)
+      _checkForUpdate(); // 🌟 ስፕላሽ ሎዲንግ ምስ ተወድአ ኣፕዴት ይፍትሽ
     }
   }
 
@@ -191,21 +190,18 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
   }
 
   // ===== Island Glide Navigation Bar =====
-  // 🌟 ዝተመሓየሸ - Proportional Widths (40% vs 20%) & Animated Containers
   Widget _buildGlideNavBar(bool isDark) {
-    // ብኣውቶማቲክ ናይቲ ስክሪን ምሉእ ስፍሓት ይልክዕ
     final double screenWidth = MediaQuery.of(context).size.width;
-    // ነቶም ታባት ዝተርፍ ስፍሓት (ካብቲ 18 * 2 = 36 ናይ ድሕንነት ርሕቀት ተቐናንዩ)
     final double barWidth = screenWidth - 36;
 
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
         child: Container(
-          height: 64, // 🌟 Compacter, sleeker height
+          height: 64,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1C1814) : Colors.white,
-            borderRadius: BorderRadius.circular(32), // Half of 64
+            borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
@@ -231,18 +227,15 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
     );
   }
 
-  // 🌟 ዝተመሓየሸ - Proportional Active Tab Container (Pill-shape)
   Widget _buildGlideNavItem(
       int index, String label, IconData icon, bool isDark, double barWidth) {
     final bool sel = _selectedIndex == index;
 
-    // Amber peach circle color (warm, like the image)
     const Color amberCircle = Color(0xFFFAEDD4);
     const Color amberIcon = Color(0xFFB8860B);
     final Color inactiveIcon =
         isDark ? Colors.white.withValues(alpha: 0.75) : const Color(0xFF2B2418);
 
-    // 🌟 ሒሳባዊ መተግበሪ፦ ዝተመርጸ (Active) 40% ስፍሓት፣ ዘይተመርጹ ድማ በቢ 20% ክወስዱ ይገብር
     final double targetWidth = sel ? barWidth * 0.40 : barWidth * 0.20;
 
     return GestureDetector(
@@ -250,25 +243,22 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic, // ልስሉስ ስላይድ ምንቅስቓስ
+        curve: Curves.easeOutCubic,
         width: targetWidth,
         height: 64,
         alignment: Alignment.center,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,
-          width: sel
-              ? targetWidth - 8
-              : 44, // 🌟 ሓዱሽ ዝተወሰኸ (መረጻ ምስ ኾነ 40% ስፍሓት ይሕዝ)
-          height: 44, // 🌟 ሓዱሽ ዝተወሰኸ (ቁመቱ ማዕረ ንምግባር)
+          width: sel ? targetWidth - 8 : 44,
+          height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: sel ? amberCircle : Colors.transparent,
-            borderRadius: BorderRadius.circular(22), // 🌟 Pill-shape ንምሓዝ
+            borderRadius: BorderRadius.circular(22),
           ),
           child: FittedBox(
-            // 🌟 ሓዱሽ ዝተወሰኸ (ነቲ 28px ስፍሓት ንምክልኻል)
-            fit: BoxFit.scaleDown, // 🌟 ሓዱሽ ዝተወሰኸ
+            fit: BoxFit.scaleDown,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -297,7 +287,6 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
     );
   }
 
-  // እቲ ዝተመሓየሸ ናይ ሎዲንግ/ስፕላሽ ስክሪን ዊጀት
   Widget _buildLoadingScreen(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -337,8 +326,6 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
   }
 }
 
-// Wraps each tab in its own Navigator so sub-screens push inside the tab,
-// keeping the outer Scaffold's nav bar always visible.
 class _TabNavigator extends StatelessWidget {
   const _TabNavigator({required this.navigatorKey, required this.child});
 
@@ -349,8 +336,6 @@ class _TabNavigator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      // Prevent the nested navigator from intercepting the system back gesture
-      // (the outer PopScope handles it instead).
       onPopPage: (route, result) {
         if (!route.didPop(result)) return false;
         return true;
@@ -370,12 +355,10 @@ class _HomeView extends StatefulWidget {
 class _HomeViewState extends State<_HomeView> {
   late final Timer _slideTimer;
   int _currentImageIndex = 0;
-  Map<String, String>? _randomQuote; // ብራንደም ዝሳሓብ ጥቅሲ
+  Map<String, String>? _randomQuote;
 
-  // ቆጸራ ግዘ ሆም ስክሪን ንምክትታል
   late DateTime _homeStartTime;
 
-  // እቶም 5 ሰሌክት ጥቅስታት (Landscape)
   final List<String> _homeImages = const [
     'assets/images/home/jesus2.jpg',
     'assets/images/home/jesus10.jpg',
@@ -387,8 +370,8 @@ class _HomeViewState extends State<_HomeView> {
   @override
   void initState() {
     super.initState();
-    _homeStartTime = DateTime.now(); // ምጅማር ሰዓት ሆም ስክሪን
-    _selectRandomQuote(); // ጥቅሲ ካብቲ ሓድሽ search_engine.dart ብራንደም ይመርጽ
+    _homeStartTime = DateTime.now();
+    _selectRandomQuote();
 
     _slideTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
@@ -399,10 +382,8 @@ class _HomeViewState extends State<_HomeView> {
     });
   }
 
-  // ካብቲ ዳታ ሓደ ብራንደም ጥቅስ ዝመርጽ ፈንክሽን
   void _selectRandomQuote() {
     setState(() {
-      // ብቐጥታ ካብቲ ዝተፈለየ GlobalSearchEngine ጥቅሲ ይሓፍስ
       _randomQuote = GlobalSearchScreen.getRandomQuote(quotesContentData);
     });
   }
@@ -410,7 +391,6 @@ class _HomeViewState extends State<_HomeView> {
   @override
   void dispose() {
     _slideTimer.cancel();
-    // ተጠቃሚ ኣብ ሆም ስክሪን ዝጸንሓሉ ሰኮንዶች ይመዝግብ
     final int secondsSpent =
         DateTime.now().difference(_homeStartTime).inSeconds;
     AnalyticsService.track('time_spent_on_home', {
@@ -441,7 +421,6 @@ class _HomeViewState extends State<_HomeView> {
                 height: 230,
                 child: Stack(
                   children: [
-                    // Sliding background image
                     Positioned.fill(
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 1500),
@@ -459,7 +438,6 @@ class _HomeViewState extends State<_HomeView> {
                         ),
                       ),
                     ),
-                    // Rich multi-stop gradient overlay
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
@@ -477,7 +455,6 @@ class _HomeViewState extends State<_HomeView> {
                         ),
                       ),
                     ),
-                    // Bottom vignette for dot readability
                     Positioned(
                       bottom: 0,
                       left: 0,
@@ -496,7 +473,6 @@ class _HomeViewState extends State<_HomeView> {
                         ),
                       ),
                     ),
-                    // App title
                     Positioned(
                       left: 22,
                       top: 0,
@@ -563,7 +539,6 @@ class _HomeViewState extends State<_HomeView> {
                         ],
                       ),
                     ),
-                    // Bell icon — top right (taps theme toggle)
                     Positioned(
                       right: 14,
                       top: 14,
@@ -599,7 +574,6 @@ class _HomeViewState extends State<_HomeView> {
                         ),
                       ),
                     ),
-                    // Slide dot indicators — bottom center
                     Positioned(
                       bottom: 12,
                       left: 0,
@@ -632,7 +606,7 @@ class _HomeViewState extends State<_HomeView> {
 
           const SizedBox(height: 16),
 
-          // 2. Quote Banner — elegant card
+          // 2. Quote Banner
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Container(
@@ -665,7 +639,6 @@ class _HomeViewState extends State<_HomeView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Decorative open-quote glyph
                     Text(
                       '\u201c',
                       style: const TextStyle(
@@ -779,7 +752,7 @@ class _HomeViewState extends State<_HomeView> {
 
           const SizedBox(height: 12),
 
-          // 4. Grid View (6 Items)
+          // 4. Grid View
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: GridView.count(
@@ -836,7 +809,6 @@ class _HomeViewState extends State<_HomeView> {
       'መንፈሳዊ ህይወት': 'assets/icons/spirituallife.png',
     };
 
-    // Unique accent gradient per category
     const Map<String, List<Color>> categoryAccents = {
       'ዝተፈላለዩ ጸሎታት': [Color(0xFFC61B1B), Color(0xFF7B0000)],
       'ታሪኽ ቅዱሳን': [Color(0xFF1565C0), Color(0xFF0A2472)],
@@ -879,7 +851,6 @@ class _HomeViewState extends State<_HomeView> {
             fit: StackFit.expand,
             children: [
               Image.asset(imageAssetPath, fit: BoxFit.cover),
-              // Accent color tint overlay (top half — subtle)
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -894,7 +865,6 @@ class _HomeViewState extends State<_HomeView> {
                   ),
                 ),
               ),
-              // Bottom-to-top dark gradient for readability
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -911,7 +881,6 @@ class _HomeViewState extends State<_HomeView> {
                   ),
                 ),
               ),
-              // Center category icon circle
               Center(
                 child: Container(
                   width: 60,
@@ -934,7 +903,6 @@ class _HomeViewState extends State<_HomeView> {
                   ),
                 ),
               ),
-              // Title and subtitle at bottom
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -1089,27 +1057,23 @@ class _CrossPainter extends CustomPainter {
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
-    // 1. እቲ መስቀል ዝያዳ ገፊሕ ንክኸውን (Stroke: 6.0)
     final crossPaint = Paint()
       ..color = color
       ..strokeWidth = 6.0
       ..strokeCap = StrokeCap.square;
 
-    // ቀጥታዊ መስመር (Vertical bar)
     canvas.drawLine(
       Offset(centerX, centerY - size.height * 0.45),
       Offset(centerX, centerY + size.height * 0.45),
       crossPaint,
     );
 
-    // ጋድም መስመር (Horizontal bar)
     canvas.drawLine(
       Offset(centerX - size.width * 0.35, centerY - size.height * 0.15),
       Offset(centerX + size.width * 0.35, centerY - size.height * 0.15),
       crossPaint,
     );
 
-    // 2. ስእሊ ክርስቶስ ኣብ ልዕሊ እቲ መስቀል (Crucifix figure in white)
     final bodyFillPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -1122,12 +1086,10 @@ class _CrossPainter extends CustomPainter {
 
     final double intersectionY = centerY - size.height * 0.15;
 
-    // ሀ. ርእሲ ክርስቶስ (Head)
     final Offset headCenter =
         Offset(centerX, intersectionY - size.height * 0.12);
     canvas.drawCircle(headCenter, size.width * 0.05, bodyFillPaint);
 
-    // ለ. ሰብነት/ደረት (Torso)
     final torsoPaint = Paint()
       ..color = Colors.white
       ..strokeWidth = 4.0
@@ -1138,7 +1100,6 @@ class _CrossPainter extends CustomPainter {
       torsoPaint,
     );
 
-    // ሐ. ዝተዘርግሑ ኣእዳው (Stretched Arms)
     final Path armsPath = Path()
       ..moveTo(centerX - size.width * 0.26, intersectionY - size.height * 0.02)
       ..quadraticBezierTo(
@@ -1155,7 +1116,6 @@ class _CrossPainter extends CustomPainter {
       );
     canvas.drawPath(armsPath, bodyLinePaint);
 
-    // መ. ልስሉስ ቐስቲ ዝኾነ መዓጠብ ጨርቂ (Elegant curved loincloth sash wrapping around hips)
     final Path sashPath = Path()
       ..moveTo(centerX - 5, intersectionY + size.height * 0.13)
       ..quadraticBezierTo(
@@ -1171,7 +1131,6 @@ class _CrossPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawPath(sashPath, sashPaint);
 
-    // ረ. ኣእጋር (Legs - slightly tapered)
     final legsPaint = Paint()
       ..color = Colors.white
       ..strokeWidth = 2.8

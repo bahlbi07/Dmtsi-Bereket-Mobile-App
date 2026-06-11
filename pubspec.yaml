@@ -30,7 +30,6 @@ dependencies:
   markdown_widget: ^2.3.2+3
   screenshot: ^3.0.0
   path_provider: ^2.1.5
-  # ➕ ንኣናሊቲክስ ብቕጽበት ዝተወሰኹ ወሰንቲ ፓኬጃት
   connectivity_plus: ^6.1.1
   http: ^1.2.2
   uuid: ^4.5.1
@@ -52,7 +51,6 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
-
   generate: true
 
   assets:
@@ -77,10 +75,8 @@ flutter:
         - asset: assets/fonts/Nyala.ttf
 
 flutter_native_splash:
-  # እቲ ቀዳማይ ዝመፅእ ዝነበረ ናይ 'jesus.jpg' (የሱስ ምስ BEREKET ፅሑፍ) ምስሊ ብምሉእ ኣልጊስናዮ ኣለና።
-  # ኣብ ክንድኡ፡ እቲ ኣፕሊኬሽን ክኽፈት ከሎ ምስቲ ናይቲ መቑፀርያ (Rosary Spinner) ድሕረ-ባይታ ሓደ ዓይነት ሕብሪ ከርኢ ገይርናዮ ኣለና።
-  color: "#F5F5F7"         # ን Light Mode ዝኸውን ፃዕዳ ዝበለ ሕብሪ (ምስቲ ኮድ ዝሰማማዕ)
-  color_dark: "#121212"    # ን Dark Mode ዝኸውን ፀሊም ሕብሪ
+  color: "#F5F5F7"
+  color_dark: "#121212"
 
   android_12:
     color: "#F5F5F7"
