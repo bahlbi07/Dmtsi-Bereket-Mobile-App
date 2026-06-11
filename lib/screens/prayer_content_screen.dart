@@ -4,7 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:meadi_tsga/data/prayer_content_data.dart';
 import 'package:meadi_tsga/custom_page_route.dart';
 import 'package:meadi_tsga/favorites_manager.dart';
-import '../app_colors.dart';
+import 'package:meadi_tsga/premium_ui.dart';
 import '../utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
 
 // Helper function needed in this file
@@ -19,7 +19,7 @@ String? _getSafeTitle(Map<dynamic, dynamic> item) {
 }
 
 // =======================================================================
-// Screen 1: Main list of prayer categories with New UI/UX (Search replaced with image)
+// Screen 1: Main list of prayer categories with New UI/UX
 // =======================================================================
 class PrayerScreen extends StatefulWidget {
   const PrayerScreen({super.key});
@@ -29,15 +29,15 @@ class PrayerScreen extends StatefulWidget {
 }
 
 class _PrayerScreenState extends State<PrayerScreen> {
-  // ንእንግሊዘኛ ንኡስ ፅሑፋት (Subtitles) ዝጠቅም ማእኸላይ መዛመዲ (Mapping Map)
+  // ንእንግሊዘኛ ንኡስ ጽሑፋት (Subtitles) ዝጠቅም ማእኸላይ መዛመዲ
   final Map<String, String> _categorySubtitles = {
     'መባእታ ናይ ትምህርተ ክርስቶስ': '',
-    'ፀሎት መቑፀርያ': '',
+    'ጸሎት መቑጸርያ': '',
     'ፍኖተ መስቀል': '',
-    'ፀሎት መቑፀርያ መንፈስ ቅዱስ': '',
-    'ፀሎት ናብ መለኮታዊ ምሕረት': '',
-    'ፀሎት ናብ ልቢ እየሱስ': '',
-    'መቑፀርያ ቅዱስ ልቢ': '',
+    'ጸሎት መቑጸርያ መንፈስ ቅዱስ': '',
+    'ጸሎት ናብ መለኮታዊ ምሕረት': '',
+    'ጸሎት ናብ ልቢ እየሱስ': '',
+    'መቑጸርያ ቅዱስ ልቢ': '',
   };
 
   @override
@@ -56,7 +56,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
     final dayOfWeek = now.weekday;
     final hour = now.hour;
 
-    // Sunday from 6:00 (12:00 morning Eth time) up to 10:59 (just before 5:00 morning Eth time)
+    // Sunday from 6:00 up to 10:59
     bool isLiturgyTime =
         (dayOfWeek == DateTime.sunday && hour >= 6 && hour < 11);
 
@@ -74,7 +74,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
                     fontWeight: FontWeight.bold,
                     fontSize: 22)),
             content: const Text(
-              "ኣብዚ ናይ ቅዳሴ ሰዓት፡ ስርዓተ ቅዳሴ ብሞባይል ምኽትታል ንኣቓልቦኻን ንኣቓልቦ ካልኦት ምእመናንን ክዘርግ ይኽእል እዩ。\n\nምሉእ በረኸት ንምርካብ፡ በጃኻ ብኣካል፡ ብመፅሓፍ፡ ወይ በቲ ኣብ ቤተ-ክርስትያን ዝርከብ መሳርሒ ተጠቒምካ ተኸታተለ。\n\nፍሉይ ምኽንያት እንተለካ ጥራይ 'ይቕፀል' ብምባል ክትጥቀመሉ ትኽእል ኢኻ።",
+              "ኣብዚ ናይ ቅዳሴ ሰዓት፡ ስርዓተ ቅዳሴ ብሞባይል ምኽትታል ንኣቓልቦኻን ንኣቓልቦ ካልኦት ምእመናንን ክዘርግ ይኽእል እዩ。\n\nምሉእ በረኸት ንምርካብ፡ በጃኻ ብኣካል፡ ብመጽሓፍ፡ ወይ በቲ ኣብ ቤተ-ክርስትያን ዝርከብ መሳርሒ ተጠቒምካ ተኸታተለ。\n\nፍሉይ ምኽንያት እንተለካ ጥራይ 'ይቕጸል' ብምባል ክትጥቀመሉ ትኽእል ኢኻ።",
               style: TextStyle(fontFamily: 'Nyala', fontSize: 18, height: 1.6),
             ),
             actions: <Widget>[
@@ -83,7 +83,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
                       style: TextStyle(fontFamily: 'Nyala', fontSize: 18)),
                   onPressed: () => Navigator.of(dialogContext).pop()),
               ElevatedButton(
-                  child: const Text('ይቐፅል',
+                  child: const Text('ይቐጽል',
                       style: TextStyle(fontFamily: 'Nyala', fontSize: 18)),
                   onPressed: () {
                     Navigator.of(dialogContext).pop();
@@ -105,8 +105,8 @@ class _PrayerScreenState extends State<PrayerScreen> {
     final List<String> prayerKeys =
         List<String>.from(category['itemKeys'] ?? []);
 
-    Navigator.push(
-      context,
+    // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+    Navigator.of(context, rootNavigator: true).push(
       SlowCupertinoPageRoute(
         builder: (context) => PrayerContentViewer(
           categoryTitle: categoryTitle,
@@ -125,66 +125,40 @@ class _PrayerScreenState extends State<PrayerScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              const SizedBox(height: 10),
+              buildPremiumPageHeader(context,
+                  title: 'ዝተፈላለዩ ጸሎታት', isDark: isDark),
 
-              // 1. ናይ ላዕሊ ኣፕባር (AppBar with back chevron with 38.0 Padding)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          size: 20),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Text(
-                      'ጸሎት መቑፀርያ',
-                      style: TextStyle(
-                        fontFamily: 'Nyala',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // 2. እታ "prayer" ዝስማ ምስሊ ዝሓዘት ሓዳስ ፃዕዳ ካርድ (Replaced search bar)
+              // 2. Prayer image card
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 38.0, vertical: 10.0),
+                    horizontal: 20.0, vertical: 10.0),
                 child: Container(
-                  height: 200, // Elegant landscape image container height
+                  height: 190,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    borderRadius: BorderRadius.circular(28),
+                    color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: Colors.black
+                            .withValues(alpha: isDark ? 0.25 : 0.07),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(12), // Border Padding
+                  padding: const EdgeInsets.all(10),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
-                      'assets/images/prayers/prayer.jpg', // Main asset target
+                      'assets/images/prayers/prayer.jpg',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        // Nested Fallback logic if asset is .jpg instead of .png
                         return Image.asset(
                           'assets/images/prayers/prayer.jpg',
                           fit: BoxFit.cover,
@@ -206,12 +180,12 @@ class _PrayerScreenState extends State<PrayerScreen> {
 
               const SizedBox(height: 12),
 
-              // 3. እቶም ናይ ጸሎታት ካርዳት (List of Prayer Cards with 38.0 Padding)
+              // 3. List of Prayer Cards
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                 itemCount: prayerListItems.length,
                 itemBuilder: (context, index) {
                   final category = prayerListItems[index];
@@ -229,8 +203,6 @@ class _PrayerScreenState extends State<PrayerScreen> {
       BuildContext context, Map<String, dynamic> category, int index) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
-    // ንእንግሊዘኛ ንኡስ ፅሑፍ ካብቲ ማፕ ይወስድ
     final subtitle = _categorySubtitles[category['title']] ?? '';
 
     return AnimationConfiguration.staggeredList(
@@ -240,20 +212,11 @@ class _PrayerScreenState extends State<PrayerScreen> {
         verticalOffset: 50.0,
         child: FadeInAnimation(
           child: Container(
-            margin: const EdgeInsets.only(bottom: 16.0),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+            margin: const EdgeInsets.only(bottom: 10.0),
+            decoration: buildPremiumCardDecoration(isDark),
             child: InkWell(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(18),
+              splashColor: const Color(0xFFC61B1B).withValues(alpha: 0.05),
               onTap: () {
                 final String type = category['type'] as String;
 
@@ -269,8 +232,8 @@ class _PrayerScreenState extends State<PrayerScreen> {
                 final String? headerImage = category['headerImage'] as String?;
 
                 if (type == 'swipeable_page') {
-                  Navigator.push(
-                    context,
+                  // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                  Navigator.of(context, rootNavigator: true).push(
                     SlowCupertinoPageRoute(
                       builder: (context) => PrayerContentViewer(
                         categoryTitle: categoryTitle,
@@ -281,8 +244,8 @@ class _PrayerScreenState extends State<PrayerScreen> {
                     ),
                   );
                 } else {
-                  Navigator.push(
-                    context,
+                  // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                  Navigator.of(context, rootNavigator: true).push(
                     SlowCupertinoPageRoute(
                       builder: (context) => PrayerSubCategoryScreen(
                         categoryTitle: categoryTitle,
@@ -294,27 +257,19 @@ class _PrayerScreenState extends State<PrayerScreen> {
                 }
               },
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 14.0),
                 child: Row(
                   children: [
-                    Container(
-                      width: 55,
-                      height: 55,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.grey.shade800
-                            : const Color(0xFFF0F0F2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          category['icon'] as IconData? ?? Icons.church,
-                          size: 28,
-                          color: const Color(0xFFC61B1B),
-                        ),
+                    buildPremiumIconContainer(
+                      isDark: isDark,
+                      child: Icon(
+                        category['icon'] as IconData? ?? Icons.church,
+                        size: 24,
+                        color: const Color(0xFFC61B1B),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,28 +278,28 @@ class _PrayerScreenState extends State<PrayerScreen> {
                             category['title']!,
                             style: TextStyle(
                               fontFamily: 'Nyala',
-                              fontSize: 18.5,
+                              fontSize: 17.5,
                               fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : Colors.black87,
+                              color: isDark
+                                  ? const Color(0xFFEEEEEE)
+                                  : Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            subtitle,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFFC61B1B),
-                              fontWeight: FontWeight.w500,
+                          if (subtitle.isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              subtitle,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFFC61B1B),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 16,
-                      color: Colors.grey.shade400,
-                    ),
+                    buildPremiumChevronButton(),
                   ],
                 ),
               ),
@@ -357,7 +312,7 @@ class _PrayerScreenState extends State<PrayerScreen> {
 }
 
 // =======================================================================
-// Screen 2: Sub-category list with dynamic uncropped header image
+// Screen 2: Sub-category list
 // =======================================================================
 class PrayerSubCategoryScreen extends StatelessWidget {
   final String categoryTitle;
@@ -385,54 +340,22 @@ class PrayerSubCategoryScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // 1. ናይ ላዕሊ ኣፕባር (Custom Header with 38.0 Margins)
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Expanded(
-                    child: Text(
-                      categoryTitle,
-                      style: const TextStyle(
-                        fontFamily: 'Nyala',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
+            buildPremiumPageHeader(context,
+                title: categoryTitle, isDark: isDark),
             Expanded(
               child: CustomScrollView(
                 slivers: [
-                  // 2. Full Header Image Box (Height 300, BoxFit.contain to prevent cropping)
                   if (headerImagePath != null)
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 38.0, vertical: 10.0),
+                            horizontal: 20.0, vertical: 10.0),
                         child: Container(
-                          height: 300, // Taller image box
+                          height: 300,
                           decoration: BoxDecoration(
                             color:
                                 isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -446,13 +369,12 @@ class PrayerSubCategoryScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(
-                              16), // Padding to safely render portrait images inside
+                          padding: const EdgeInsets.all(16),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20.0),
                             child: Image.asset(
                               headerImagePath!,
-                              fit: BoxFit.contain, // Fits entire image cleanly
+                              fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
                                 return const SizedBox.shrink();
                               },
@@ -461,8 +383,6 @@ class PrayerSubCategoryScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                  // 3. Subcategory List Cards
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(38.0, 10.0, 38.0, 80.0),
                     sliver: SliverList(
@@ -515,10 +435,11 @@ class PrayerSubCategoryScreen extends StatelessWidget {
                                         .toList();
                                   }
 
-                                  mysteryParts.add("መዛዘሚ ፀሎታት");
+                                  mysteryParts.add("መዛዘሚ ጸሎታት");
 
-                                  Navigator.push(
-                                    context,
+                                  // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                                  Navigator.of(context, rootNavigator: true)
+                                      .push(
                                     SlowCupertinoPageRoute(
                                       builder: (context) => PrayerContentViewer(
                                         categoryTitle: prayerTitle,
@@ -529,8 +450,9 @@ class PrayerSubCategoryScreen extends StatelessWidget {
                                     ),
                                   );
                                 } else {
-                                  Navigator.push(
-                                    context,
+                                  // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                                  Navigator.of(context, rootNavigator: true)
+                                      .push(
                                     SlowCupertinoPageRoute(
                                       builder: (context) => PrayerContentViewer(
                                         categoryTitle: categoryTitle,
@@ -655,7 +577,8 @@ class _PrayerContentViewerState extends State<PrayerContentViewer>
   late TabController _tabController;
   late int _currentIndex;
   final FavoritesManager _favoritesManager = FavoritesManager();
-  late DateTime _startTime; // ቆፀራ ግዘ
+  late DateTime _startTime;
+  bool _isFullscreen = false;
 
   @override
   void initState() {
@@ -668,7 +591,6 @@ class _PrayerContentViewerState extends State<PrayerContentViewer>
         vsync: this,
         initialIndex: _currentIndex);
 
-    // 🌟 ዜሮ ቆፀራ ጸገም ንምፍታሕ፦ ገጽ ኣብ ዝተኸፈተሉ ቕጽበት እቨንት ምምዝጋብ
     _trackViewDetail(_currentIndex);
 
     _tabController.addListener(() {
@@ -681,7 +603,7 @@ class _PrayerContentViewerState extends State<PrayerContentViewer>
 
   void _trackViewDetail(int index) {
     AnalyticsService.track('view_detail', {
-      'category': 'ዝተፈላለዩ ፀሎታት',
+      'category': 'ዝተፈላለዩ ጸሎታት',
       'title': widget.prayerKeys[index],
     });
   }
@@ -691,33 +613,38 @@ class _PrayerContentViewerState extends State<PrayerContentViewer>
     _pageController.dispose();
     _tabController.dispose();
 
-    // ጸሎት ዝጸንሑሉ ሰኮንዶች ምዝገባ (Time Spent on Content)
     final int secondsSpent = DateTime.now().difference(_startTime).inSeconds;
     AnalyticsService.track('time_spent_on_detail', {
-      'category': 'ዝተፈላለዩ ፀሎታት',
+      'category': 'ዝተፈላለዩ ጸሎታት',
       'title': widget.prayerKeys[_currentIndex],
       'seconds': secondsSpent,
     });
 
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
+  }
+
+  void _toggleFullscreen() {
+    setState(() => _isFullscreen = !_isFullscreen);
+    SystemChrome.setEnabledSystemUIMode(
+      _isFullscreen ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
+    );
   }
 
   void updateIndex(int index) {
     if (_currentIndex != index && mounted) {
-      // ሓድሽ ጸሎት ክቕየር ከሎ ነቲ ዝነበረ ግዘ መዝጊብና ሓድሽ ግዘ ንጅምር
       final int secondsSpent = DateTime.now().difference(_startTime).inSeconds;
       AnalyticsService.track('time_spent_on_detail', {
-        'category': 'ዝተፈላለዩ ፀሎታት',
+        'category': 'ዝተፈላለዩ ጸሎታት',
         'title': widget.prayerKeys[_currentIndex],
         'seconds': secondsSpent,
       });
 
       setState(() {
         _currentIndex = index;
-        _startTime = DateTime.now(); // ሓድሽ ግዘ ምጅማር
+        _startTime = DateTime.now();
         _tabController.animateTo(index);
 
-        // 🌟 ገጽ ክቕየር ከሎ ሓዱሽ እቨንት ምዝገባ
         _trackViewDetail(index);
 
         if (widget.displayMode == PrayerDisplayMode.pageView) {
@@ -748,10 +675,9 @@ class _PrayerContentViewerState extends State<PrayerContentViewer>
       dateAdded: DateTime.now(),
     );
 
-    // ቶፕ ዝተፈተዉ ምምዝጋብ
     if (!_favoritesManager.isFavorite(favoriteId)) {
       AnalyticsService.track('favorite_added', {
-        'category': 'ዝተፈላለዩ ፀሎታት',
+        'category': 'ዝተፈላለዩ ጸሎታት',
         'title': currentPrayerTitle,
       });
     }
@@ -785,128 +711,146 @@ class _PrayerContentViewerState extends State<PrayerContentViewer>
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
-        centerTitle: false,
-        title: Text(
-          useTabs ? widget.categoryTitle : currentPrayerTitle,
-          style: TextStyle(
-            fontFamily: 'Nyala',
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 22,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-                isCurrentlyFavorite
-                    ? Icons.star_rounded
-                    : Icons.star_outline_rounded,
-                size: 26),
-            color: isCurrentlyFavorite
-                ? const Color(0xFFC61B1B)
-                : (isDark ? Colors.white70 : Colors.black54),
-            onPressed: _toggleFavorite,
-          ),
-          if (showNavigationArrows)
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios, size: 18),
-              onPressed: _currentIndex > 0
-                  ? () => updateIndex(_currentIndex - 1)
-                  : null,
-            ),
-          if (showNavigationArrows)
-            IconButton(
-              icon: const Icon(Icons.arrow_forward_ios, size: 18),
-              onPressed: _currentIndex < widget.prayerKeys.length - 1
-                  ? () => updateIndex(_currentIndex + 1)
-                  : null,
-            ),
-          const SizedBox(width: 20),
-        ],
-        bottom: useTabs && widget.prayerKeys.length > 1
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(60),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 38.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      dividerColor: Colors.transparent,
-                      indicatorColor: Colors.transparent,
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      indicator: const BoxDecoration(),
-                      onTap: (index) => updateIndex(index),
-                      tabs: widget.prayerKeys.map((key) {
-                        final isSelected =
-                            widget.prayerKeys[_currentIndex] == key;
-                        return Tab(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? const Color(0xFFC61B1B)
-                                  : (isDark
-                                      ? Colors.grey.shade800
-                                      : const Color(0xFFE5E5E5)),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              key,
-                              style: TextStyle(
-                                fontFamily: 'Nyala',
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? Colors.white
-                                    : (isDark
-                                        ? Colors.white70
-                                        : Colors.black87),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+      appBar: _isFullscreen
+          ? null
+          : AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              iconTheme:
+                  IconThemeData(color: isDark ? Colors.white : Colors.black87),
+              centerTitle: false,
+              title: Text(
+                useTabs ? widget.categoryTitle : currentPrayerTitle,
+                style: TextStyle(
+                  fontFamily: 'Nyala',
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 22,
                 ),
-              )
-            : null,
-      ),
-      body: useTabs
-          ? TabBarView(
-              controller: _tabController,
-              children: widget.prayerKeys.map((key) {
-                final contentKey =
-                    key == "መዛዘሚ ፀሎታት" ? "rosary_conclusion" : key;
-                return PrayerDetailPage(
-                    contentBlocks: allPrayersContent[contentKey] ?? []);
-              }).toList(),
-            )
-          : PageView.builder(
-              controller: _pageController,
-              itemCount: widget.prayerKeys.length,
-              onPageChanged: (index) => updateIndex(index),
-              itemBuilder: (context, index) {
-                final key = widget.prayerKeys[index];
-                return PrayerDetailPage(
-                    contentBlocks: allPrayersContent[key] ?? []);
-              },
+                overflow: TextOverflow.ellipsis,
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                      isCurrentlyFavorite
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      size: 26),
+                  color: isCurrentlyFavorite
+                      ? const Color(0xFFC61B1B)
+                      : (isDark ? Colors.white70 : Colors.black54),
+                  onPressed: _toggleFavorite,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.fullscreen_rounded, size: 22),
+                  onPressed: _toggleFullscreen,
+                ),
+                if (showNavigationArrows)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, size: 18),
+                    onPressed: _currentIndex > 0
+                        ? () => updateIndex(_currentIndex - 1)
+                        : null,
+                  ),
+                if (showNavigationArrows)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios, size: 18),
+                    onPressed: _currentIndex < widget.prayerKeys.length - 1
+                        ? () => updateIndex(_currentIndex + 1)
+                        : null,
+                  ),
+                const SizedBox(width: 20),
+              ],
+              bottom: useTabs && widget.prayerKeys.length > 1
+                  ? PreferredSize(
+                      preferredSize: const Size.fromHeight(60),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: TabBar(
+                            controller: _tabController,
+                            isScrollable: true,
+                            tabAlignment: TabAlignment.start,
+                            dividerColor: Colors.transparent,
+                            indicatorColor: Colors.transparent,
+                            labelPadding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
+                            indicator: const BoxDecoration(),
+                            onTap: (index) => updateIndex(index),
+                            tabs: widget.prayerKeys.map((key) {
+                              final isSelected =
+                                  widget.prayerKeys[_currentIndex] == key;
+                              return Tab(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFFC61B1B)
+                                        : (isDark
+                                            ? Colors.grey.shade800
+                                            : const Color(0xFFE5E5E5)),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    key,
+                                    style: TextStyle(
+                                      fontFamily: 'Nyala',
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : (isDark
+                                              ? Colors.white70
+                                              : Colors.black87),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    )
+                  : null,
             ),
+      body: Stack(
+        children: [
+          useTabs
+              ? TabBarView(
+                  controller: _tabController,
+                  children: widget.prayerKeys.map((key) {
+                    final contentKey =
+                        key == "መዛዘሚ ጸሎታት" ? "rosary_conclusion" : key;
+                    return PrayerDetailPage(
+                        contentBlocks: allPrayersContent[contentKey] ?? []);
+                  }).toList(),
+                )
+              : PageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.prayerKeys.length,
+                  onPageChanged: (index) => updateIndex(index),
+                  itemBuilder: (context, index) {
+                    final key = widget.prayerKeys[index];
+                    return PrayerDetailPage(
+                        contentBlocks: allPrayersContent[key] ?? []);
+                  },
+                ),
+          if (_isFullscreen)
+            buildFullscreenOverlay(
+              context: context,
+              title: useTabs ? widget.categoryTitle : currentPrayerTitle,
+              onExit: _toggleFullscreen,
+            ),
+        ],
+      ),
     );
   }
 }
 
 // =======================================================================
-// Screen 4: Detail screen with expanded uncropped portrait-safe images (Sequential Inline Rendering)
+// Screen 4: Detail screen with uncropped portrait-safe images
 // =======================================================================
 class PrayerDetailPage extends StatelessWidget {
   final List<Map<String, dynamic>> contentBlocks;
@@ -927,19 +871,16 @@ class PrayerDetailPage extends StatelessWidget {
     final List<Widget> sequentialWidgets = [];
     List<Map<String, dynamic>> currentTextGroup = [];
 
-    // Loop through blocks sequentially to preserve database structure
     for (var block in contentBlocks) {
       final String type = block['type'] ?? 'paragraph';
 
       if (type == 'image') {
-        // If there are accumulated text blocks, render them in a clean Text Card first
         if (currentTextGroup.isNotEmpty) {
           sequentialWidgets
               .add(_buildTextCard(context, currentTextGroup, isDark));
           sequentialWidgets.add(const SizedBox(height: 16));
           currentTextGroup = [];
         }
-        // Build and append the inline image container
         sequentialWidgets.add(_buildImageBlock(context, block));
         sequentialWidgets.add(const SizedBox(height: 16));
       } else {
@@ -947,18 +888,23 @@ class PrayerDetailPage extends StatelessWidget {
       }
     }
 
-    // Append any remaining text blocks
     if (currentTextGroup.isNotEmpty) {
       sequentialWidgets.add(_buildTextCard(context, currentTextGroup, isDark));
     }
 
-    // Clean up trailing vertical spacing
     if (sequentialWidgets.isNotEmpty && sequentialWidgets.last is SizedBox) {
       sequentialWidgets.removeLast();
     }
 
+    final double safeBottomPadding = MediaQuery.of(context).padding.bottom;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 38.0, vertical: 20.0),
+      padding: EdgeInsets.only(
+        left: 20.0,
+        right: 20.0,
+        top: 20.0,
+        bottom: safeBottomPadding > 0 ? safeBottomPadding + 20.0 : 40.0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -969,7 +915,6 @@ class PrayerDetailPage extends StatelessWidget {
     );
   }
 
-  // Unified Text Container Card preserving the exact original container UI/UX styles
   Widget _buildTextCard(BuildContext context,
       List<Map<String, dynamic>> textBlocks, bool isDark) {
     return Container(
@@ -994,14 +939,12 @@ class PrayerDetailPage extends StatelessWidget {
     );
   }
 
-  // Expanded Container with BoxFit.contain to fully display portrait/landscape images safely
   Widget _buildImageBlock(BuildContext context, Map<String, dynamic> block) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      height:
-          300, // Slightly taller height to accommodate vertical aspect ratios
+      height: 300,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -1013,14 +956,12 @@ class PrayerDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(
-          16), // Padding to safely border the portrait bounds within the card
+      padding: const EdgeInsets.all(16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.0),
         child: Image.asset(
           block['path'] as String,
-          fit: BoxFit
-              .contain, // Renders the complete, uncropped portrait photo freely
+          fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return Center(
               child: Icon(

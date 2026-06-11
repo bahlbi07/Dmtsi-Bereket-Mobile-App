@@ -10,7 +10,7 @@ class AboutAppScreen extends StatefulWidget {
 }
 
 class _AboutAppScreenState extends State<AboutAppScreen> {
-  // ንቋንቋ መቆፃፀሪ (false = ትግርኛ፣ true = English)
+  // ንቋንቋ መቆጻጸሪ (false = ትግርኛ፣ true = English)
   bool _isEnglish = false;
 
   // ሊንክታት ብቐሊሉን ብውሕስነትን ንምኽፋት ዝሕግዝ ዘመናዊ ፈንክሽን
@@ -39,7 +39,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
     }
   }
 
-  // ንኣርእስትታት ፍሉይ ፅባቐ ንምሃብ ዝተዳለወ ንእሽተይ ዊድጀት
+  // ንኣርእስትታት ፍሉይ ጽባቐ ንምሃብ ዝተዳለወ ንእሽተይ ዊድጀት
   Widget _buildFeatureItem(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -80,26 +80,34 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 20),
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.pop(context);
-                        },
-                      ),
-                      Text(
-                        _isEnglish ? 'About App' : 'ብዛዕባ ኣፕ (About App)',
-                        style: const TextStyle(
-                          fontFamily: 'Nyala',
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  // ✅ Expanded ብምእታው ነቲ ጸጋማይ ሸነኽ ዘሎ ጽሑፍ ካብ ምፍሳስ ንከላኸሎ
+                  Expanded(
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                              size: 20),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.maybePop(context);
+                          },
                         ),
-                      ),
-                    ],
+                        // ✅ እቲ መጸውዒ ጽሑፍ ኣብ ንኣሽቱ ቴሌፎናት እውን ከይፈስስ Expanded ንገብሮ
+                        Expanded(
+                          child: Text(
+                            _isEnglish ? 'About App' : 'ብዛዕባ ኣፕ (About App)',
+                            style: const TextStyle(
+                              fontFamily: 'Nyala',
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 12), // 🌟 ኣብ ማእኸል ዘሎ ድሕንነት ርሕቀት
                   // ቋንቋ መለዋወጢ በተን (Language Selector Toggle)
                   GestureDetector(
                     onTap: () {
@@ -139,7 +147,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 38.0),
                 child: Column(
                   children: [
-                    // ካርድ 1፦ መግለፂ መኣዲ ጸጋ (App Overview & Vision)
+                    // ካርድ 1፦ መግለጺ መኣዲ ጸጋ (App Overview & Vision)
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -168,17 +176,17 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                             ),
                           ),
                           const Text(
-                            'Version 2.0.0',
+                            'Version 2.0.1',
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           const SizedBox(height: 20),
                           const Divider(),
                           const SizedBox(height: 10),
-                          // መእተዊ (Mission & Value Proposition) - 🌟 ሓዱሽ ፕሮፌሽናል ፅሑፍ
+                          // መእተዊ (Mission & Value Proposition) - 🌟 ሓዱሽ ፕሮፌሽናል ጽሑፍ
                           Text(
                             _isEnglish
                                 ? "Me'adi Tsega is an official spiritual application designed for Tigrinya-speaking Catholic faithful. Committed to enriching daily devotional life and deepening ecclesiastical knowledge, the app provides structured, offline-ready access to essential prayers, liturgical frameworks, and authentic Catholic catechism."
-                                : "መኣዲ ጸጋ ንተዛረብቲ ቋንቋ ትግርኛ ካቶሊካውያን መእመናን ዝተዳለወ ወግዓዊ መንፈሳዊ መተግበሪ እዩ። እዚ መተግበሪ እዚ፣ ዕለታዊ ጸሎታት፣ ስርዓተ ኣምልኾ፣ ሃብታም ትምህርተ ሃይማኖትን ታሪኽ ቤተክርስትያንን ብቐሊሉ ኣብ ዘለዉዎ ኮይኖም ንኽረኽቡ ብምግባር፣ ዕለታዊ መንፈሳዊ ህይወት መእመናን ንምሕጋዝን ሃይማኖታዊ ፍልጠቶም ንምዕባይን ዝዓለመ እዩ።",
+                                : "መኣዲ ጸጋ ንተዛረብቲ ቋንቋ ትግርኛ ካቶሊካውያን መእመናን ዝተዳለወ ወግዓዊ መንፈሳዊ መተግበሪ እዩ። እዚ መተግበሪ እዚ፣ ዕለታዊ ጸሎታት፣ ስርዓተ ኣምልኾ፣ ትምህርተ ሃይማኖትን ታሪኽ ቤተክርስትያንን ብቐሊሉ ኣብ ዘለዉዎ ኮይኖም ንኽረኽቡ ብምግባር፣ ዕለታዊ መንፈሳዊ ህይወት መእመናን ንምሕጋዝን ሃይማኖታዊ ፍልጠቶም ንምዕባይን ዝዓለመ እዩ።",
                             style: const TextStyle(
                               fontFamily: 'Nyala',
                               fontSize: 17,
@@ -187,7 +195,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                             textAlign: TextAlign.justify,
                           ),
                           const SizedBox(height: 15),
-                          // ብዛዕባ መኣዲ ጸጋ (Features Intro) - 🌟 ሓዱሽ ፕሮፌሽናል ፅሑፍ
+                          // ብዛዕባ መኣዲ ጸጋ (Features Intro) - 🌟 ሓዱሽ ፕሮፌሽናል ጽሑፍ
                           Text(
                             _isEnglish
                                 ? "The application is engineered for maximum accessibility, user convenience, and reliable performance to serve as a trustworthy spiritual companion in the daily life of believers."
@@ -209,7 +217,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                               Icons.menu_book_rounded,
                               _isEnglish
                                   ? "Lives of Saints (Over 27 Saints' Biographies)"
-                                  : "ታሪኽ ቅዱሳን (ልዕሊ 27 ቅዱሳን ሓፂር ዛንታ)"),
+                                  : "ታሪኽ ቅዱሳን (ልዕሊ 27 ቅዱሳን ሓጺር ዛንታ)"),
                           _buildFeatureItem(
                               Icons.format_quote_rounded,
                               _isEnglish
@@ -262,7 +270,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // ካርድ 2፦ ምስጋናን ኣፍልጦን (Acknowledgements & Credits) - 🌟 ሓዱሽ ፕሮፌሽናል ፅሑፍ
+                    // ካርድ 2፦ ምስጋናን ኣፍልጦን (Acknowledgements & Credits) - 🌟 ሓዱሽ ፕሮፌሽናል ጽሑፍ
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -287,7 +295,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           Text(
                             _isEnglish
                                 ? "We express our profound gratitude to the ecclesiastical authorities and authors whose canonical resources, blessings, and literature made this application possible:"
-                                : "እዚ ኣገልግሎት እዚ ብትኽክለኛን ብስርዓት ተዳልዩ ንኽበፅሕ፣ ወሰንቲ መንፈሳዊ ፅሑፋትን መጻሕፍትን ንኽንጥቀም ፍቓድን ኣቦኣዊ ቡራኬን ዘበርከቱልና ኣካላት ምስጋናና ልዑል እዩ፦",
+                                : "እዚ ኣገልግሎት እዚ ብትኽክለኛን ብስርዓት ተዳልዩ ንኽበጽሕ፣ ወሰንቲ መንፈሳዊ ጽሑፋትን መጻሕፍትን ንኽንጥቀም ፍቓድን ኣቦኣዊ ቡራኬን ዘበርከቱልና ኣካላት ምስጋናና ልዑል እዩ፦",
                             style: const TextStyle(
                                 fontFamily: 'Nyala',
                                 fontSize: 15,
@@ -298,7 +306,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           Text(
                             _isEnglish
                                 ? "His Excellency Abune Tesfasellassie Medhin (Bishop of Adigrat)"
-                                : "ብፁዕ ኣቡነ ተስፋስላሴ መድህን (ጳጳስ ዘካቶሊካውያን ዘዓዲግራት)፦",
+                                : "ብጹዕ ኣቡነ ተስፋስላሴ መድህን (ጳጳስ ዘካቶሊካውያን ሃገረ ስብከት ዓዲግራት)፦",
                             style: const TextStyle(
                                 fontFamily: 'Nyala',
                                 fontSize: 16,
@@ -307,7 +315,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           Text(
                             _isEnglish
                                 ? "— For his fatherly blessings and for granting the rights to utilize essential literature on 'Church History'."
-                                : "— ኣብዛ ኣፕሊኬሽን ንዘሎ 'ታሪኽ ቤተ-ክርስትያን' ዘለዎ መፅሓፍ ናብዚ መተግበሪ ንክፀዓን ብምፍቃድን ነዚ ስራሕ ብኣቦኣዊ ፍቕሪ ብምባረኾምን።",
+                                : "— ኣብዛ ኣፕሊኬሽን ንዘሎ 'ታሪኽ ቤተ-ክርስትያን' ዘለዎም መጽሓፍ ናብዚ መተግበሪ ንክጸዓን ብምፍቃድን ነዚ ስራሕ ብኣቦኣዊ ፍቕሪ ብምባረኾምን።",
                             style: const TextStyle(
                                 fontFamily: 'Nyala', fontSize: 14, height: 1.4),
                           ),
@@ -324,7 +332,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           Text(
                             _isEnglish
                                 ? "— For officially permitting the adaptation of the hagiographical texts and spiritual insights from his published book, 'Short History of Saints and Quotes'."
-                                : "— ካብቲ ንሶም ዘሰናደውዎ 'ሓፂር ታሪኽ ቅዱሳን እና ጥቅስታት' ዝብል መፅሓፍ፣ ታሪኽ ቅዱሳንን ጥቅስታቶምን ንኽንወስድ ወግዓዊ ፍቓዶም ስለዝሃቡና።",
+                                : "— ካብቲ ንሶም ዘሰናደውዎ 'ሓጺር ታሪኽ ቅዱሳን እና ጥቅስታት' ዝብል መጽሓፍ፣ ታሪኽ ቅዱሳንን ጥቅስታቶምን ንኽንወስድ ወግዓዊ ፍቓዶም ስለዝሃቡና።",
                             style: const TextStyle(
                                 fontFamily: 'Nyala', fontSize: 14, height: 1.4),
                           ),
@@ -333,23 +341,53 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start, // ንኣስማት ብላዕሊ ንምዕራይ
                             children: [
                               Text(
-                                _isEnglish ? 'UI/UX Designer:' : 'UI/UX ዲዛይነር፦',
+                                _isEnglish
+                                    ? 'UI/UX Designers:'
+                                    : 'UI/UX ዲዛይነራት፦',
                                 style: const TextStyle(
                                     fontFamily: 'Nyala',
                                     fontSize: 15,
                                     color: Colors.grey),
                               ),
-                              Text(
-                                _isEnglish
-                                    ? 'Nahom Embaye'
-                                    : 'ናሆም እምባየ (Nahom Embaye)',
-                                style: TextStyle(
-                                  fontFamily: 'Nyala',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black87,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                // ✅ ካብ ፀገም ምፍሳስ (Overflow) ንምክልኻል
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.end, // ንየማን ንምስራዕ
+                                  children: [
+                                    Text(
+                                      _isEnglish
+                                          ? 'Nahom Embaye'
+                                          : 'ናሆም እምባየ (Nahom Embaye)',
+                                      style: TextStyle(
+                                        fontFamily: 'Nyala',
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _isEnglish
+                                          ? 'Tedros Haddish'
+                                          : 'ቴድሮስ ሓዱሽ (Tedros Haddish)',
+                                      style: TextStyle(
+                                        fontFamily: 'Nyala',
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -357,8 +395,8 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           const SizedBox(height: 4),
                           Text(
                             _isEnglish
-                                ? "Acknowledged for his precise craftsmanship and dedication in designing this modern interface."
-                                : "እዛ ኣፕሊኬሽን ንዓይኒ ምጭውትን ዘመናዊትን ንክትከውን ንለባም ስራሑን ዓቢ ኣበርክቶኡን ኣፍልጦ ንህብ።",
+                                ? "Acknowledged for their precise craftsmanship and dedication in designing this modern interface."
+                                : "እዛ ኣፕሊኬሽን ንዓይኒ ምጭውትን ዘመናዊትን ንክትከውን ንውፉይ ስራሖምን ዓቢ ኣበርክቶኦምን ኣፍልጦ ንህብ።",
                             style: const TextStyle(
                                 fontFamily: 'Nyala',
                                 fontSize: 13,
@@ -369,7 +407,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // ካርድ 3፦ ምልላይ "ድምፀ በረኸት" ኣፕሊኬሽን (Cross-Promotion) - 🌟 ሓዱሽ ፕሮፌሽናል ፅሑፍ
+                    // ካርድ 3፦ ምልላይ "ድምጸ በረኸት" ኣፕሊኬሽን (Cross-Promotion) - 🌟 ሓዱሽ ፕሮፌሽናል ጽሑፍ
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -388,7 +426,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                                 child: Text(
                                   _isEnglish
                                       ? 'My Other App: Dmtsi Bereket'
-                                      : 'ድምፀ በረኸት (Catholic Mezmur Lyrics)',
+                                      : 'ድምጸ በረኸት (Catholic Mezmur Lyrics)',
                                   style: const TextStyle(
                                     fontFamily: 'Nyala',
                                     fontSize: 19,
@@ -403,7 +441,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                           Text(
                             _isEnglish
                                 ? "To further enrich your devotion, we warmly invite you to explore 'Dmtsi Bereket' (Catholic Mezmur Lyrics), containing over 1,030 hymns to accompany your daily worship."
-                                : "ንተወሳኺ መንፈሳዊ ዕቤት፣ ልዕሊ 1030 ናይ ካቶሊክ መዛሙር ግጥምታት ዝሓዘት 'ድምፀ በረኸት' (ካቶሊክ መዝሙር ግጥሚ) እትበሃል መተግበሪና ብምውራድ ክትጥቀሙ ብፍቕሪ ይዕድም።",
+                                : "ንተወሳኺ መንፈሳዊ ዕቤት፣ ልዕሊ 1030 ናይ ካቶሊክ መዛሙር ግጥምታት ዝሓዘት 'ድምጸ በረኸት' (ካቶሊክ መዝሙር ግጥሚ) እትበሃል መተግበሪና ብምውራድ ክትጥቀሙ ብፍቕሪ ይዕድም።",
                             style: const TextStyle(
                               fontFamily: 'Nyala',
                               fontSize: 15,
@@ -429,7 +467,7 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                               label: Text(
                                 _isEnglish
                                     ? 'Download Dmtsi Bereket'
-                                    : 'ድምፀ በረኸት ኣፕሊኬሽን ኣውርድ',
+                                    : 'ድምጸ በረኸት ኣፕሊኬሽን ኣውርድ',
                                 style: const TextStyle(
                                   fontFamily: 'Nyala',
                                   fontSize: 16,
@@ -476,9 +514,15 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                               Text(_isEnglish ? 'Developed By:' : 'ዝሰርሖ ዲቨሎፐር፦',
                                   style: const TextStyle(
                                       fontFamily: 'Nyala', fontSize: 16)),
-                              const Text('© 2026 BHD Apps',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
+                              const SizedBox(width: 8), // 🌟 ድሕንነት ርሕቀት
+                              const Expanded(
+                                // ✅ ካብ ፀገም ምፍሳስ ንምክልኻል (Expanded + TextAlign.end)
+                                child: Text(
+                                  '2026 BAHLBI HAILE',
+                                  textAlign: TextAlign.end,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -493,12 +537,17 @@ class _AboutAppScreenState extends State<AboutAppScreen> {
                                 Text(_isEnglish ? 'Email Us:' : 'ኢሜይል፦',
                                     style: const TextStyle(
                                         fontFamily: 'Nyala', fontSize: 16)),
-                                const Text(
-                                  'dmtsibereketapp@gmail.com',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFC61B1B),
-                                    decoration: TextDecoration.underline,
+                                const SizedBox(width: 8), // 🌟 ድሕንነት ርሕቀት
+                                const Expanded(
+                                  // ✅ ካብ ፀገም ምፍሳስ ንምክልኻል (Expanded + TextAlign.end)
+                                  child: Text(
+                                    'dmtsibereketapp@gmail.com',
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFC61B1B),
+                                      decoration: TextDecoration.underline,
+                                    ),
                                   ),
                                 ),
                               ],

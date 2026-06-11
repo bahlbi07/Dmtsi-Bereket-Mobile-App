@@ -6,7 +6,8 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:url_launcher/url_launcher.dart'; // 🌟 ሓዱሽ መእተዊ
 
 import '../custom_page_route.dart';
-import '../ui_helpers.dart'; // FontSizeController ካብዚ ቦታ ንምምፃእ
+import '../ui_helpers.dart';
+import '../premium_ui.dart'; // FontSizeController ካብዚ ቦታ ንምምጻእ
 
 // ንበይኖም ዝተፈጠሩ 4 ሓደስቲ ስክሪናት
 import 'support_app_screen.dart';
@@ -34,50 +35,45 @@ class MenuScreen extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).removeCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.error_outline_rounded, color: Colors.white),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'ሊንክ ምኽፋት ኣይተኻእለን።',
-                    style: TextStyle(fontFamily: 'Nyala', fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red[800],
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            margin: const EdgeInsets.all(16),
-          ),
-        );
+        _showErrorSnackBar(context);
       }
     }
   }
 
-  void _showDisabledSnackbar(BuildContext context) {
-    HapticFeedback.lightImpact();
+  // ✅ ሓዱሽ ተግባር፦ ንናይ ቴሌግራምን ዩቱብን ሊንክታት ብውሕስነት ንምኽፋት ዝሕግዝ ሎጂክ
+  Future<void> _launchURL(BuildContext context, String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch URL';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showErrorSnackBar(context);
+      }
+    }
+  }
+
+  // ናይ ስሕተት SnackBar መርኣዪ ደጋፊ ፈንክሽን
+  void _showErrorSnackBar(BuildContext context) {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(
           children: [
-            Icon(Icons.star_half_rounded, color: Colors.white),
+            Icon(Icons.error_outline_rounded, color: Colors.white),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                'እዚ ሊንክ ንግዜኡ ተዓፅዩ ኣሎ።',
+                'ሊንክ ምኽፋት ኣይተኻእለን።',
                 style: TextStyle(fontFamily: 'Nyala', fontSize: 18),
               ),
             ),
           ],
         ),
-        backgroundColor: Colors.orange[800],
+        backgroundColor: Colors.red[800],
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.all(16),
@@ -117,6 +113,24 @@ class MenuScreen extends StatelessWidget {
           },
         ],
       },
+      // 🌟 ሓዱሽ ዓንቀፅ፦ ሓበሬታ ንምክትታል (ማሕበራዊ ገፃት)
+      {
+        'title': 'ሓበሬታ ንምክትታል',
+        'items': [
+          {
+            'imagePath': 'assets/icons/telegram.png', // Telegram
+            'title': 'ቴሌግራም ቻነል (Telegram)',
+            'onTap': () =>
+                _launchURL(context, 'https://t.me/CatholicSpiritialApp'),
+          },
+          {
+            'imagePath': 'assets/icons/youtube.png', // YouTube
+            'title': 'ዩቱብ ቻነል (YouTube)',
+            'onTap': () => _launchURL(
+                context, 'https://www.youtube.com/@dmtsibereket1234'),
+          },
+        ],
+      },
       {
         'title': 'ሓበሬታን ፖሊሲታትን',
         'items': [
@@ -142,40 +156,14 @@ class MenuScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Back Chevron Appbar with 38.0 Padding
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Text(
-                    'ዝርዝር (Menu)',
-                    style: TextStyle(
-                      fontFamily: 'Nyala',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
+            buildPremiumPageHeader(context,
+                title: 'ዝርዝር (Menu)',
+                isDark: isDark,
+                showBackButton: false), // 🌟 ሓዱሽ ዝተወሰኸ
             Expanded(
               child: ListenableBuilder(
                 listenable: FontSizeController.multiplier,
@@ -183,7 +171,7 @@ class MenuScreen extends StatelessWidget {
                   return AnimationLimiter(
                     child: ListView.builder(
                       padding:
-                          const EdgeInsets.fromLTRB(38.0, 10.0, 38.0, 80.0),
+                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 80.0),
                       itemCount: menuSections.length + 1,
                       itemBuilder: (context, index) {
                         if (index == 0) {
@@ -226,7 +214,7 @@ class MenuScreen extends StatelessWidget {
   }
 }
 
-/// ናይ ፎንት ሳይዝ መቆፃፀሪ ዘመናዊ ካርድ
+/// ናይ ፎንት ሳይዝ መቆጻጸሪ ዘመናዊ ካርድ
 class _FontSizeAdjustmentCard extends StatelessWidget {
   const _FontSizeAdjustmentCard();
 
@@ -242,24 +230,14 @@ class _FontSizeAdjustmentCard extends StatelessWidget {
 
         return Container(
           margin: const EdgeInsets.only(bottom: 20.0),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+          decoration: buildPremiumCardDecoration(isDark),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
                 padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 8.0),
                 child: Text(
-                  'ናይ ፅሑፍ ዓቐን (Font Size)',
+                  'ናይ ጽሑፍ ዓቐን (Font Size)',
                   style: TextStyle(
                     fontFamily: 'Nyala',
                     color: Color(0xFFC61B1B),
@@ -338,17 +316,7 @@ class _MenuSectionCard extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20.0),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+      decoration: buildPremiumCardDecoration(isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -382,17 +350,36 @@ class _MenuSectionCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color:
-                        isDark ? Colors.grey.shade900 : const Color(0xFFF2F2F5),
+                    gradient: LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF2A1515), const Color(0xFF351A1A)]
+                          : [const Color(0xFFFFF0F0), const Color(0xFFFFE0E0)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
+                      // ✅ ሓዱሽ ተዓፃፃፊ ኣሰራርሓ ምስሊ (የተኣማምን Asset Loading ምስ Fallback)
                       child: Image.asset(
                         item['imagePath'],
                         fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          // እቶም PNG ምስልታት ኣብቲ ፎልደርካ እንተዘይሃልዮም፣ ብዘይ ስሕተት ናብዚ ዝስዕብ ቬክተር ኣይኮን ይቀይሮ [2]።
+                          final String path = item['imagePath'] as String;
+                          if (path.contains('telegram')) {
+                            return const Icon(Icons.send_rounded,
+                                color: Color(0xFFC61B1B), size: 24);
+                          } else if (path.contains('youtube')) {
+                            return const Icon(Icons.play_circle_fill_rounded,
+                                color: Color(0xFFC61B1B), size: 24);
+                          }
+                          return const Icon(Icons.link_rounded,
+                              color: Color(0xFFC61B1B), size: 24);
+                        },
                       ),
                     ),
                   ),
@@ -403,8 +390,18 @@ class _MenuSectionCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                         color: isDark ? Colors.white70 : Colors.black87)),
-                trailing: const Icon(Icons.arrow_forward_ios,
-                    size: 14, color: Colors.grey),
+                trailing: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFC61B1B).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.arrow_forward_ios_rounded,
+                        size: 12, color: Color(0xFFC61B1B)),
+                  ),
+                ),
                 onTap: () {
                   HapticFeedback.lightImpact();
                   item['onTap']();

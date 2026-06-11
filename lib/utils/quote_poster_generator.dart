@@ -20,7 +20,7 @@ class QuotePosterGenerator {
     required String author,
     required String topic,
   }) async {
-    // 1. ሎዲንግ ፖፕ-ኣፕ ምስቲ ዝዘውር ናይ መቁፀርያ ስፒነር (Rotating Rosary Spinner ካብ ሆምፔጅ ዝተወሰደ)
+    // 1. ሎዲንግ ፖፕ-ኣፕ ምስቲ ዝዘውር ናይ መቁጸርያ ስፒነር (Rotating Rosary Spinner ካብ ሆምፔጅ ዝተወሰደ)
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -31,7 +31,7 @@ class QuotePosterGenerator {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // እቲ ካብ ሆምፔጅ ዝመፀ ዝዘውር ናይ መቁፀርያ ምልክት
+              // እቲ ካብ ሆምፔጅ ዝመጸ ዝዘውር ናይ መቁጸርያ ምልክት
               RotatingRosarySpinner(
                 size: 110,
                 color: Color(0xFFC61B1B), // primaryRed
@@ -58,12 +58,12 @@ class QuotePosterGenerator {
       // ካብቶም 40 ዲዛይናት ብዘይ ደጋጋሚ ሕብርታት ብራንደም ምምራፅ
       int randomStyleIndex = math.Random().nextInt(40);
 
-      // 🛡️ ንናይ View.of() ፀገም ንምፈታሕ ናይ ኮንቴክስት ዳታታት ኣቐዲምና ንወስድ
+      // 🛡️ ንናይ View.of() ጸገም ንምፈታሕ ናይ ኮንቴክስት ዳታታት ኣቐዲምና ንወስድ
       final mediaQueryData = MediaQuery.of(context);
       final themeData = Theme.of(context);
 
       // ምስሊ ጀነሬት ምግባር (ብቀጥታ ካብ ዩዘር ኮንቴክስት ፍፁም ጌጋ ንኸይፍጠር ጌርናዮ ኣለና)
-      final Uint8List? imageBytes =
+      final Uint8List imageBytes =
           await _screenshotController.captureFromLongWidget(
         _buildPosterCanvas(
           cleanedQuote,
@@ -78,7 +78,7 @@ class QuotePosterGenerator {
         delay: const Duration(milliseconds: 350),
       );
 
-      if (imageBytes == null) throw Exception("ምስሊ ክስራሕ ኣይከኣለን።");
+      if (imageBytes.isEmpty) throw Exception("ምስሊ ክስራሕ ኣይከኣለን።");
 
       // 2. ምስሉ ዝዕቀበሉ ትኽክለኛ ቦታ መምረፂ ሎጂክ (Safe dynamic filename with sanitized title & timestamp)
       File file;
@@ -100,15 +100,15 @@ class QuotePosterGenerator {
         await file.writeAsBytes(imageBytes);
         saveLocationMsg = 'ምስሊ ተዓቂቡ ኣሎ (Downloads/MeadiTsega)';
       } catch (e) {
-        // ናይ ፍቃድ ፀገም እንተሃሊዩ ብዘይ ፍቃድ ምስሊ ሼር ንምግባር ኣብ ግዝያዊ ኬሽ ይዕቅቦ
+        // ናይ ፍቃድ ጸገም እንተሃሊዩ ብዘይ ፍቃድ ምስሊ ሼር ንምግባር ኣብ ግዝያዊ ኬሽ ይዕቅቦ
         final tempDir = await getTemporaryDirectory();
         file = File('${tempDir.path}/MeadiTsega_${safeTitle}_$timestamp.png');
         await file.writeAsBytes(imageBytes);
         saveLocationMsg = 'ምስሊ ብዓወት ተዳልዩ ኣሎ (ግዝያዊ ማህደር)';
       }
 
-      // ሎዲንግ መዕፀዊ
-      if (context.mounted) Navigator.pop(context);
+      // ሎዲንግ መዕጸዊ
+      if (context.mounted) Navigator.maybePop(context);
 
       // 3. ምስሊ ዝተዓቀበሉ ቦታ ብትኽክል ዝሕብር SnackBar
       if (context.mounted) {
@@ -142,7 +142,7 @@ class QuotePosterGenerator {
       // ሼር ንጥፈት ብዓወት ምምዝጋብ
       AnalyticsService.track('poster_shared', {
         'topic': topic,
-        'author': author ?? 'Unknown',
+        'author': author,
       });
 
       await Share.shareXFiles(
@@ -150,7 +150,7 @@ class QuotePosterGenerator {
         text: '"$cleanedQuote"\n- $author (ካብ መኣዲ ጸጋ ኣፕሊኬሽን)',
       );
     } catch (e) {
-      if (context.mounted) Navigator.pop(context);
+      if (context.mounted) Navigator.maybePop(context);
 
       // ጌጋ እንተሃልዩ ምምዝጋብ
       AnalyticsService.track('poster_failed', {
@@ -171,7 +171,7 @@ class QuotePosterGenerator {
   }
 
   /// 40 ፍሉያት መንፈሳውያን ንድፍታት (Gradients & Custom PNG Assets)
-  /// እዚ ዊጀት እዚ ንናይ View/MediaQuery ፀገማት ብዘላቕነት ንምፍታሕ ካብ ንጡፍ ኣፕሊኬሽን ዳታታት ይወስድ።
+  /// እዚ ዊጀት እዚ ንናይ View/MediaQuery ጸገማት ብዘላቕነት ንምፍታሕ ካብ ንጡፍ ኣፕሊኬሽን ዳታታት ይወስድ።
   static Widget _buildPosterCanvas(
     String content,
     String author,
@@ -512,7 +512,7 @@ class QuotePosterGenerator {
     final bool isDark = style['isDark'];
     final String fontTheme = style['font'];
 
-    // 🛡️ ንናይ View.of() ፀገም ብዘላቕነት ንምክልኻል ንጡፍ ኮንቴክስት ዳታታት ኢንጀክት ንገብር
+    // 🛡️ ንናይ View.of() ጸገም ብዘላቕነት ንምክልኻል ንጡፍ ኮንቴክስት ዳታታት ኢንጀክት ንገብር
     return MediaQuery(
       data: mediaQuery,
       child: Theme(

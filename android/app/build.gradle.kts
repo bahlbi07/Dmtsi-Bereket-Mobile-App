@@ -45,6 +45,15 @@ android {
         targetSdk = 36
         versionCode = flutterVersionCode.toInt()
         versionName = flutterVersionName
+
+        // [ወሰኽ 1]፦ MultiDex ንናይ ቀደም ስልኪታት ኣገዳሲ እዩ (ከይዕጾ ይከላኸል)
+        multiDexEnabled = true
+
+        // [ወሰኽ 2]፦ ንኹሉ ኣርክቴክቸር ዝድግፍ (ARM32, ARM64, x86) ንምግባር
+        // እዚ ኮድ እዩ እቲ ኣፕሊኬሽንካ ብዘንደር ክለኣኽ ከሎ ኣብ ዝኾነት ሞባይል ንክሰርሕ ዝገብሮ።
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+        }
     }
 
     compileOptions {
@@ -80,6 +89,9 @@ flutter {
 }
 
 dependencies {
+    // [ወሰኽ 3]፦ MultiDex ንምድጋፍ ዝተወሰኸ ላይብረሪ
+    implementation("androidx.multidex:multidex:2.0.1")
+
     // እዚ መስመር እዚ ኣብቲ ቀንዲ ናይ ፕሮጀክት gradle ፋይል (android/build.gradle.kts)
     // ስለ ዝግለጽ፡ ኣብዚ ምውሳኹ ኣየድልን እዩ። እንተደኣ ጸገም ኣምጺኡ ግን ክትመልሶ ትኽእል ኢኻ።
     // implementation(kotlin("stdlib-jdk8"))

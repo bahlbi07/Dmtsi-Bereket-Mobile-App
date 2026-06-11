@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:meadi_tsga/custom_page_route.dart';
-import '../app_colors.dart';
 import '../utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
 
 // ናይ ዳታ ፋይላት እቱው ዝኾኑሉ
@@ -52,7 +51,7 @@ class SearchResult {
 class GlobalSearchScreen extends StatefulWidget {
   const GlobalSearchScreen({super.key});
 
-  /// 🔥 ካብቲ ዳታ ሓደ ብራንደም ጥቅስ መሪፁ ዘፅርይ static ፈንክሽን
+  /// 🔥 ካብቲ ዳታ ሓደ ብራንደም ጥቅስ መሪጹ ዘጽርይ static ፈንክሽን
   static Map<String, String> getRandomQuote(Map<String, dynamic> quotesData) {
     try {
       final List<Map<String, String>> allQuotes = [];
@@ -90,7 +89,7 @@ class GlobalSearchScreen extends StatefulWidget {
 
     return {
       'quote':
-          'ወትሩ ምስ እግዚኣብሔር ኪኸውን ዝደሊ ሰብ፡ ብዙሕ ጊዜ ኣብ ፀሎትን መንፈሳዊ ንባብን ኪፅመድ የድልዮ',
+          'ወትሩ ምስ እግዚኣብሔር ኪኸውን ዝደሊ ሰብ፡ ብዙሕ ጊዜ ኣብ ጸሎትን መንፈሳዊ ንባብን ኪጽመድ የድልዮ',
       'author': 'ቅዱስ ኣጐስጢኖስ',
     };
   }
@@ -126,7 +125,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   void _buildDictionary() {
     final Set<String> words = {};
 
-    // 1. ፀሎታት
+    // 1. ጸሎታት
     for (var key in allPrayersContent.keys) {
       words.addAll(_extractWords(key));
     }
@@ -149,7 +148,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     // 5. ታሪኽ ቤተ-ክርስትያን
     final allChurch = [...churchHistoryPartOne, ...churchHistoryPartTwo];
     for (var topic in allChurch) {
-      final title = topic['title'] as String? ?? '';
+      final title = topic['title'] ?? '';
       words.addAll(_extractWords(title));
     }
 
@@ -284,12 +283,12 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       res = res.replaceAll(key, value);
     });
     res = res
-        .replaceAll(RegExp(r'[ፀ]'), 'ጸ')
-        .replaceAll(RegExp(r'[ፁ]'), 'ጹ')
-        .replaceAll(RegExp(r'[ፂ]'), 'ጺ')
-        .replaceAll(RegExp(r'[ፃ]'), 'ጻ')
-        .replaceAll(RegExp(r'[ፄ]'), 'ጼ')
-        .replaceAll(RegExp(r'[ፅ]'), 'ጽ')
+        .replaceAll(RegExp(r'[ጸ]'), 'ጸ')
+        .replaceAll(RegExp(r'[ጹ]'), 'ጹ')
+        .replaceAll(RegExp(r'[ጺ]'), 'ጺ')
+        .replaceAll(RegExp(r'[ጻ]'), 'ጻ')
+        .replaceAll(RegExp(r'[ጼ]'), 'ጼ')
+        .replaceAll(RegExp(r'[ጽ]'), 'ጽ')
         .replaceAll(RegExp(r'[ፆ]'), 'ጾ')
         .replaceAll(RegExp(r'[ሠ]'), 'ሰ')
         .replaceAll(RegExp(r'[ሡ]'), 'ሱ')
@@ -337,14 +336,18 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     if (s2.isEmpty) return s1.length;
     List<int> v0 = List<int>.filled(s2.length + 1, 0);
     List<int> v1 = List<int>.filled(s2.length + 1, 0);
-    for (int i = 0; i <= s2.length; i++) v0[i] = i;
+    for (int i = 0; i <= s2.length; i++) {
+      v0[i] = i;
+    }
     for (int i = 0; i < s1.length; i++) {
       v1[0] = i + 1;
       for (int j = 0; j < s2.length; j++) {
         int cost = (s1[i] == s2[j]) ? 0 : 1;
         v1[j + 1] = math.min(v1[j] + 1, math.min(v0[j + 1] + 1, v0[j] + cost));
       }
-      for (int j = 0; j <= s2.length; j++) v0[j] = v1[j];
+      for (int j = 0; j <= s2.length; j++) {
+        v0[j] = v1[j];
+      }
     }
     return v1[s2.length];
   }
@@ -394,7 +397,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
     List<SearchResult> temp = [];
 
-    // 1. ፀሎታት
+    // 1. ጸሎታት
     allPrayersContent.forEach((key, blocks) {
       final normKey = _advancedNormalize(key);
       bool textMatch = false;
@@ -410,7 +413,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       if (normKey.contains(q) || textMatch) {
         temp.add(SearchResult(
           title: key,
-          subtitle: 'ፀሎታት',
+          subtitle: 'ጸሎታት',
           type: 'prayer',
           data: key,
         ));
@@ -530,7 +533,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     switch (result.type) {
       case 'prayer':
         targetScreen = PrayerContentViewer(
-          categoryTitle: 'ፀሎታት',
+          categoryTitle: 'ጸሎታት',
           prayerKeys: [result.title],
           initialIndex: 0,
           displayMode: PrayerDisplayMode.pageView,
@@ -576,51 +579,52 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Custom app bar title with 38.0 Padding
+            // Header
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
               child: Row(
                 children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Text(
-                    'ዘመናዊ መድለዪ',
+                  Text(
+                    'ድለ',
                     style: TextStyle(
                       fontFamily: 'Nyala',
-                      fontSize: 24,
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? const Color(0xFFEEEEEE)
+                          : const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: 4,
+                    height: 4,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFC61B1B),
+                      shape: BoxShape.circle,
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Custom modern search text field inside white/slate card with 38.0 Padding
+            // Modern search bar
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 10.0),
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  borderRadius: BorderRadius.circular(30),
+                  color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
                       color:
-                          Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-                      blurRadius: 10,
+                          Colors.black.withValues(alpha: isDark ? 0.25 : 0.07),
+                      blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -633,14 +637,14 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                       fontSize: 18,
                       color: theme.textTheme.bodyLarge?.color),
                   decoration: InputDecoration(
-                    hintText: 'ፀሎት፣ ታሪኽ፣ ትምህርቲ ድለ...',
+                    hintText: 'ጸሎት፣ ታሪኽ፣ ትምህርቲ ድለ...',
                     hintStyle: TextStyle(
                       fontFamily: 'Nyala',
                       color: Colors.grey.shade400,
                       fontSize: 16,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 15),
+                        horizontal: 20, vertical: 15),
                     border: InputBorder.none,
                     prefixIcon: Padding(
                       padding: const EdgeInsets.only(left: 12.0),
@@ -750,7 +754,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'ዝደለኻዮ ቃል ብምፅሓፍ ብቕልጡፍ ርኸብ',
+            'ዝደለኻዮ ቃል ብምጽሓፍ ብቕልጡፍ ርኸብ',
             style: TextStyle(
                 fontFamily: 'Nyala', fontSize: 18, color: Colors.grey),
           ),
@@ -767,7 +771,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         padding: const EdgeInsets.only(top: 40),
         child: Center(
           child: Text(
-            '"${_searchController.text}" ዝብል ፅሑፍ ኣይተረኸበን።',
+            '"${_searchController.text}" ዝብል ጽሑፍ ኣይተረኸበን።',
             style: const TextStyle(
                 fontFamily: 'Nyala', fontSize: 20, color: Colors.grey),
           ),

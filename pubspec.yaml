@@ -2,7 +2,7 @@ name: meadi_tsga
 description: A Flutter project for meaditsega.
 publish_to: 'none'
 
-version: 1.2.4+12
+version: 2.0.1+13
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

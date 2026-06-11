@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:meadi_tsga/custom_page_route.dart';
 import 'package:meadi_tsga/favorites_manager.dart';
+import 'package:meadi_tsga/premium_ui.dart';
 
 // Screens
 import 'package:meadi_tsga/screens/prayer_content_screen.dart';
@@ -14,7 +14,6 @@ import 'package:meadi_tsga/screens/spiritual_life_screen.dart';
 
 import 'package:meadi_tsga/data/quotes_of_saint_data.dart';
 import 'package:meadi_tsga/data/prayer_content_data.dart';
-import '../app_colors.dart';
 import '../data/doctrine_data.dart';
 
 String? _getSafeTitle(Map<dynamic, dynamic> item) {
@@ -41,7 +40,7 @@ class FavoritesCategoryScreen extends StatelessWidget {
     // እቶም ምስቲ ሆም ፔጅ ተመሳሰልቲ ዝተገበሩ ናይ ምስሊ ኣይኮናት
     final List<Map<String, dynamic>> categories = [
       {
-        'title': 'ዝተፈተዉ ፀሎታት',
+        'title': 'ዝተፈተዉ ጸሎታት',
         'imagePath': 'assets/icons/All_Prayer.jpg',
         'type': FavoriteType.prayer
       },
@@ -74,45 +73,19 @@ class FavoritesCategoryScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Back Chevron Appbar title with 38.0 Padding
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Text(
-                    'ዝፈተኽዎም (Favorites)',
-                    style: TextStyle(
-                      fontFamily: 'Nyala',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
+            buildPremiumPageHeader(context,
+                title: 'ዝፈተኽዎም (Favorites)',
+                isDark: isDark,
+                showBackButton: false), // 🌟 ሓዱሽ ዝተወሰኸ
             Expanded(
               child: AnimationLimiter(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 38.0, vertical: 8.0), // 38.0 Padding
+                      horizontal: 20.0, vertical: 8.0),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
                     final category = categories[index];
@@ -123,23 +96,12 @@ class FavoritesCategoryScreen extends StatelessWidget {
                         verticalOffset: 50.0,
                         child: FadeInAnimation(
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: 16.0),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black
-                                      .withValues(alpha: isDark ? 0.2 : 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
+                            margin: const EdgeInsets.only(bottom: 10.0),
+                            decoration: buildPremiumCardDecoration(isDark),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(18),
+                              splashColor: const Color(0xFFC61B1B)
+                                  .withValues(alpha: 0.05),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -150,39 +112,36 @@ class FavoritesCategoryScreen extends StatelessWidget {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 14.0),
                                 child: Row(
                                   children: [
-                                    // ብ ClipRRect ዝተቖረፀ ውቁብ ናይ ምስሊ ኣይኮን
-                                    Container(
-                                      width: 55,
-                                      height: 55,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
+                                    buildPremiumIconContainer(
+                                      isDark: isDark,
                                       child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(10),
                                         child: Image.asset(
                                           category['imagePath'],
-                                          fit: BoxFit.cover,
+                                          width: 28,
+                                          height: 28,
+                                          fit: BoxFit.contain,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    const SizedBox(width: 14),
                                     Expanded(
                                       child: Text(
                                         category['title'],
                                         style: TextStyle(
                                             fontFamily: 'Nyala',
-                                            fontSize: 18.5,
+                                            fontSize: 17.5,
                                             fontWeight: FontWeight.bold,
                                             color: isDark
-                                                ? Colors.white
+                                                ? const Color(0xFFEEEEEE)
                                                 : Colors.black87),
                                       ),
                                     ),
-                                    const Icon(Icons.arrow_forward_ios,
-                                        size: 16, color: Colors.grey),
+                                    buildPremiumChevronButton(),
                                   ],
                                 ),
                               ),
@@ -240,7 +199,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
 
   String _getAppBarTitle() {
     const titles = {
-      FavoriteType.prayer: 'ዝተፈተዉ ፀሎታት',
+      FavoriteType.prayer: 'ዝተፈተዉ ጸሎታት',
       FavoriteType.quote: 'ዝተፈተዉ ጥቕስታት',
       FavoriteType.saintsHistory: 'ታሪኽ ቅዱሳን',
       FavoriteType.churchHistory: 'ታሪኽ ቤተ-ክርስትያን',
@@ -257,43 +216,15 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Back Chevron with 38.0 Padding
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Expanded(
-                    child: Text(
-                      _getAppBarTitle(),
-                      style: const TextStyle(
-                        fontFamily: 'Nyala',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
+            buildPremiumPageHeader(
+              context,
+              title: _getAppBarTitle(),
+              isDark: isDark,
             ),
-
-            const SizedBox(height: 10),
-
             Expanded(
               child: _favoriteItems.isEmpty
                   ? Center(
@@ -312,7 +243,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
                   : AnimationLimiter(
                       child: ListView.builder(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 38.0, vertical: 8.0), // 38.0 Padding
+                            horizontal: 20.0, vertical: 8.0),
                         itemCount: _favoriteItems.length,
                         itemBuilder: (context, index) {
                           final item = _favoriteItems[index];
@@ -388,7 +319,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
                   .whereType<String>()
                   .toList();
             }
-            prayerKeys.add("መዛዘሚ ፀሎታት");
+            prayerKeys.add("መዛዘሚ ጸሎታት");
           } else {
             final categoryData = prayerListItems.firstWhere(
               (category) => category['title'] == categoryTitle,
@@ -403,7 +334,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
 
           if (initialIndex != -1) {
             detailScreen = PrayerContentViewer(
-              categoryTitle: categoryTitle ?? 'ፀሎታት',
+              categoryTitle: categoryTitle ?? 'ጸሎታት',
               prayerKeys: prayerKeys,
               initialIndex: initialIndex,
               displayMode: isMysteryPart

@@ -47,7 +47,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
       try {
         await launchUrl(emailUri);
-        if (mounted) Navigator.pop(context);
+        if (mounted) Navigator.maybePop(context);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -92,7 +92,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                     onPressed: () {
                       HapticFeedback.lightImpact();
-                      Navigator.pop(context);
+                      Navigator.maybePop(context);
                     },
                   ),
                   const Text(
@@ -131,7 +131,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         const Text(
-                          'ሓሳብኩም ወይ ርእይቶኹም ኣዝዩ የሐጉሰና! ዝኾነ ይኹን ፀገም ወይ መመሓየሺ ሓሳብ እንተለኩም፡ ኣብዚ ፅሒፍኩም ስደዱልና።',
+                          'ሓሳብኩም ወይ ርእይቶኹም ኣዝዩ የሐጉሰና! ዝኾነ ይኹን ጸገም ወይ መመሓየሺ ሓሳብ እንተለኩም፡ ኣብዚ ጽሒፍኩም ስደዱልና።',
                           style: TextStyle(
                               fontFamily: 'Nyala', fontSize: 18, height: 1.6),
                         ),
@@ -240,7 +240,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 fontFamily: 'Nyala',
                                 fontSize: 18,
                                 color: primaryColor),
-                            hintText: 'ነቲ ርእይቶኹም ኣብዚ ብዝርዝር ፅሓፉ...',
+                            hintText: 'ነቲ ርእይቶኹም ኣብዚ ብዝርዝር ጽሓፉ...',
                             hintStyle: const TextStyle(
                                 fontFamily: 'Nyala', fontSize: 16),
                             alignLabelWithHint: true,

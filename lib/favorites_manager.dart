@@ -7,7 +7,7 @@ import 'package:meadi_tsga/data/church_history_data.dart';
 import 'package:meadi_tsga/data/spiritual_life_data.dart';
 import 'package:meadi_tsga/data/doctrine_data.dart';
 
-// <<< መዛሙር፣ መፅሓፍ ቅዱስን ማሕበራዊ ትምህርትን ካብዚ ጠፊኦም ኣለዉ >>>
+// <<< መዛሙር፣ መጽሓፍ ቅዱስን ማሕበራዊ ትምህርትን ካብዚ ጠፊኦም ኣለዉ >>>
 enum FavoriteType {
   prayer,
   quote,

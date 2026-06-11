@@ -3,7 +3,7 @@
 import 'package:flutter/cupertino.dart';
 
 /// ብ CupertinoPageRoute ተመሳሲሉ፡ ግና ቀስ ዝበለ ናይ ምቅይያር ስምዒት (transition) ዘለዎ ሩት።
-/// እዚ ንተጠቃሚ ንፁርን ዘይሃንደበታውን ናይ ገፅ ለውጢ ይህቦ።
+/// እዚ ንተጠቃሚ ንፁርን ዘይሃንደበታውን ናይ ገጽ ለውጢ ይህቦ።
 class SlowCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
   SlowCupertinoPageRoute({
     required super.builder,

@@ -6,7 +6,7 @@ import 'favorites_manager.dart';
 import 'ui_helpers.dart'; // FontSizeController ንምርካብ ዝተወሰኸ
 import 'utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
 
-// ማእኸላይ ናይ ቴማ (Theme) መቆፃፃሪ መታን ዳርክ/ላይት ሞድ ብቐሊሉ ክቕየር
+// ማእኸላይ ናይ ቴማ (Theme) መቆጻጻሪ መታን ዳርክ/ላይት ሞድ ብቐሊሉ ክቕየር
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
 
 Future<void> main() async {
@@ -32,18 +32,18 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (context, currentMode, child) {
-        // ንፎንት ሳይዝ ለውጢ ዝሰምዕ መቆፃፃሪ
+        // ንፎንት ሳይዝ ለውጢ ዝሰምዕ መቆጻጻሪ
         return ListenableBuilder(
           listenable: FontSizeController.multiplier,
           builder: (context, _) {
             return MaterialApp(
-              title: 'መኣዲ ፀጋ',
+              title: 'መኣዲ ጸጋ',
               theme: lightTheme,
               darkTheme: darkTheme,
-              themeMode: currentMode, // ብ ValueNotifier ዝቆፃፀር
+              themeMode: currentMode, // ብ ValueNotifier ዝቆጻጸር
               debugShowCheckedModeBanner: false,
 
-              // ንመላእ ኣፕሊኬሽን (Global) ዘገልግል ናይ ፅሑፍ መለክዒ (Text Scaling)
+              // ንመላእ ኣፕሊኬሽን (Global) ዘገልግል ናይ ጽሑፍ መለክዒ (Text Scaling)
               builder: (context, child) {
                 return MediaQuery(
                   data: MediaQuery.of(context).copyWith(

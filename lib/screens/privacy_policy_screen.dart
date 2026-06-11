@@ -26,7 +26,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                         const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                     onPressed: () {
                       HapticFeedback.lightImpact();
-                      Navigator.pop(context);
+                      Navigator.maybePop(context);
                     },
                   ),
                   const Text(

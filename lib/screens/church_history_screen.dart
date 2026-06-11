@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:meadi_tsga/app_colors.dart';
 import 'package:meadi_tsga/data/church_history_data.dart';
 import 'package:meadi_tsga/custom_page_route.dart';
 import 'package:meadi_tsga/favorites_manager.dart';
+import 'package:meadi_tsga/premium_ui.dart';
 
 // =======================================================================
 // Screen 1: Church History Topics List
@@ -20,45 +20,17 @@ class ChurchHistoryScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Appbar with 38.0 Padding
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Text(
-                    'ታሪኽ ቤተ-ክርስትያን',
-                    style: TextStyle(
-                      fontFamily: 'Nyala',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
+            buildPremiumPageHeader(context,
+                title: 'ታሪኽ ቤተ-ክርስትያን', isDark: isDark),
             Expanded(
               child: AnimationLimiter(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 38.0, vertical: 8.0),
+                      horizontal: 20.0, vertical: 8.0),
                   itemCount: allTopics.length,
                   itemBuilder: (context, index) {
                     final topic = allTopics[index];
@@ -69,26 +41,15 @@ class ChurchHistoryScreen extends StatelessWidget {
                         verticalOffset: 50.0,
                         child: FadeInAnimation(
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: 16.0),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black
-                                      .withValues(alpha: isDark ? 0.2 : 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
+                            margin: const EdgeInsets.only(bottom: 10.0),
+                            decoration: buildPremiumCardDecoration(isDark),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(18),
+                              splashColor: const Color(0xFFC61B1B)
+                                  .withValues(alpha: 0.05),
                               onTap: () {
-                                Navigator.push(
-                                  context,
+                                // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                                Navigator.of(context, rootNavigator: true).push(
                                   SlowCupertinoPageRoute(
                                     builder: (context) =>
                                         ChurchHistoryViewerScreen(
@@ -99,45 +60,33 @@ class ChurchHistoryScreen extends StatelessWidget {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 14.0),
                                 child: Row(
                                   children: [
-                                    Container(
-                                      width: 55,
-                                      height: 55,
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? Colors.grey.shade800
-                                            : const Color(0xFFF0F0F2),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.history_edu_rounded,
-                                          size: 28,
-                                          color: Color(0xFFC61B1B),
-                                        ),
+                                    buildPremiumIconContainer(
+                                      isDark: isDark,
+                                      child: const Icon(
+                                        Icons.history_edu_rounded,
+                                        size: 24,
+                                        color: Color(0xFFC61B1B),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    const SizedBox(width: 14),
                                     Expanded(
                                       child: Text(
                                         topic['title'] as String,
                                         style: TextStyle(
                                           fontFamily: 'Nyala',
-                                          fontSize: 18.5,
+                                          fontSize: 17.5,
                                           fontWeight: FontWeight.bold,
                                           color: isDark
-                                              ? Colors.white
+                                              ? const Color(0xFFEEEEEE)
                                               : Colors.black87,
                                         ),
                                       ),
                                     ),
-                                    Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 16,
-                                      color: Colors.grey.shade400,
-                                    ),
+                                    buildPremiumChevronButton(),
                                   ],
                                 ),
                               ),
@@ -179,6 +128,7 @@ class _ChurchHistoryViewerScreenState extends State<ChurchHistoryViewerScreen> {
   late final PageController _pageController;
   late int _currentIndex;
   final FavoritesManager _favoritesManager = FavoritesManager();
+  bool _isFullscreen = false;
 
   @override
   void initState() {
@@ -190,7 +140,15 @@ class _ChurchHistoryViewerScreenState extends State<ChurchHistoryViewerScreen> {
   @override
   void dispose() {
     _pageController.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
+  }
+
+  void _toggleFullscreen() {
+    setState(() => _isFullscreen = !_isFullscreen);
+    SystemChrome.setEnabledSystemUIMode(
+      _isFullscreen ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
+    );
   }
 
   Future<void> _toggleFavorite() async {
@@ -226,67 +184,85 @@ class _ChurchHistoryViewerScreenState extends State<ChurchHistoryViewerScreen> {
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
-        title: Text(
-          widget.allTopics[_currentIndex]['title'] as String,
-          style: TextStyle(
-            fontFamily: 'Nyala',
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 22,
+      appBar: _isFullscreen
+          ? null
+          : AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              iconTheme:
+                  IconThemeData(color: isDark ? Colors.white : Colors.black87),
+              title: Text(
+                widget.allTopics[_currentIndex]['title'] as String,
+                style: TextStyle(
+                  fontFamily: 'Nyala',
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 22,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                      isCurrentlyFavorite
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      size: 26),
+                  color: isCurrentlyFavorite
+                      ? const Color(0xFFC61B1B)
+                      : (isDark ? Colors.white70 : Colors.black54),
+                  onPressed: _toggleFavorite,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.fullscreen_rounded, size: 22),
+                  onPressed: _toggleFullscreen,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, size: 18),
+                  onPressed: _currentIndex > 0
+                      ? () => _pageController.previousPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut)
+                      : null,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios, size: 18),
+                  onPressed: _currentIndex < widget.allTopics.length - 1
+                      ? () => _pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut)
+                      : null,
+                ),
+                const SizedBox(width: 20),
+              ],
+            ),
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.allTopics.length,
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+            },
+            itemBuilder: (context, index) {
+              return _ChurchHistoryDetailPage(
+                  topicData: widget.allTopics[index]);
+            },
           ),
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-                isCurrentlyFavorite
-                    ? Icons.star_rounded
-                    : Icons.star_outline_rounded,
-                size: 26),
-            color: isCurrentlyFavorite
-                ? const Color(0xFFC61B1B)
-                : (isDark ? Colors.white70 : Colors.black54),
-            onPressed: _toggleFavorite,
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios, size: 18),
-            onPressed: _currentIndex > 0
-                ? () => _pageController.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut)
-                : null,
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios, size: 18),
-            onPressed: _currentIndex < widget.allTopics.length - 1
-                ? () => _pageController.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut)
-                : null,
-          ),
-          const SizedBox(width: 20),
+          if (_isFullscreen)
+            buildFullscreenOverlay(
+              context: context,
+              title: widget.allTopics[_currentIndex]['title'] as String,
+              onExit: _toggleFullscreen,
+            ),
         ],
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.allTopics.length,
-        onPageChanged: (index) {
-          setState(() => _currentIndex = index);
-        },
-        itemBuilder: (context, index) {
-          return _ChurchHistoryDetailPage(topicData: widget.allTopics[index]);
-        },
       ),
     );
   }
 }
 
 // =======================================================================
-// Screen 3: Church History Detail Content Page (Sequential Inline Rendering)
+// Screen 3: Church History Detail Content Page
 // =======================================================================
 class _ChurchHistoryDetailPage extends StatelessWidget {
   final Map<String, dynamic> topicData;
@@ -299,7 +275,6 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
 
     final List<Map<String, dynamic>> sequenceBlocks = [];
 
-    // 1. Safely extract image path first (if it exists in topicData)
     if (topicData.containsKey('path') && topicData['path'] is String) {
       final imagePath = topicData['path'] as String;
       if (imagePath.trim().isNotEmpty) {
@@ -307,7 +282,6 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
       }
     }
 
-    // 2. Extract and parse text content
     final dynamic rawContent = topicData['content'] ??
         topicData['text'] ??
         topicData['description'] ??
@@ -330,7 +304,6 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
       }
     }
 
-    // Show empty state if there is no content parsed
     if (sequenceBlocks.isEmpty) {
       return Center(
         child: Padding(
@@ -362,19 +335,16 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
     final List<Widget> sequentialWidgets = [];
     List<Map<String, dynamic>> currentTextGroup = [];
 
-    // Loop through blocks and preserve their sequential order
     for (var block in sequenceBlocks) {
       final String type = block['type'] as String? ?? '';
 
       if (type == 'image') {
-        // If there are accumulated text blocks, build them into a Text Card first
         if (currentTextGroup.isNotEmpty) {
           sequentialWidgets
               .add(_buildTextCard(context, currentTextGroup, isDark));
           sequentialWidgets.add(const SizedBox(height: 16));
           currentTextGroup = [];
         }
-        // Build and append the Image block
         sequentialWidgets.add(_buildImageBlock(context, block));
         sequentialWidgets.add(const SizedBox(height: 16));
       } else {
@@ -382,18 +352,23 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
       }
     }
 
-    // Append any remaining text blocks at the end
     if (currentTextGroup.isNotEmpty) {
       sequentialWidgets.add(_buildTextCard(context, currentTextGroup, isDark));
     }
 
-    // Clean up trailing vertical spacing
     if (sequentialWidgets.isNotEmpty && sequentialWidgets.last is SizedBox) {
       sequentialWidgets.removeLast();
     }
 
+    final double safeBottomPadding = MediaQuery.of(context).padding.bottom;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 38.0, vertical: 20.0),
+      padding: EdgeInsets.only(
+        left: 38.0,
+        right: 38.0,
+        top: 20.0,
+        bottom: safeBottomPadding > 0 ? safeBottomPadding + 20.0 : 40.0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -404,7 +379,6 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
     );
   }
 
-  // Unified Text Card preserving the exact original container UI/UX styles
   Widget _buildTextCard(BuildContext context,
       List<Map<String, dynamic>> textBlocks, bool isDark) {
     return Container(
@@ -451,7 +425,7 @@ class _ChurchHistoryDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
         child: Image.asset(
           block['path'] as String,
-          fit: BoxFit.contain, // Allow full portrait rendering cleanly
+          fit: BoxFit.contain,
           errorBuilder: (ctx, err, stack) => Container(
               height: 200,
               color: Colors.grey[300],

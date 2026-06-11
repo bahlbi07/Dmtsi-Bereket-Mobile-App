@@ -1,8 +1,9 @@
 import 'dart:async'; // ን ስላይድ ማኒፑሌት ንምግባር
+import 'dart:io'; // 🌟 ሓዱሽ ዝተወሰኸ (ን Platform.isAndroid ፍተሻ)
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'app_colors.dart';
+import 'package:in_app_update/in_app_update.dart'; // 🌟 ሓዱሽ ዝተወሰኸ (ን Google Play In-App Updates)
 import 'custom_page_route.dart';
 import 'main.dart'; // ን themeNotifier ንምርካብ
 import 'utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
@@ -30,7 +31,14 @@ class MeadiTsegaHomePage extends StatefulWidget {
 
 class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
   int _selectedIndex = 0;
-  bool _isLoading = true; // ንሎዲንግ ስክሪን መቆፃፀሪ
+  bool _isLoading = true;
+
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
 
   @override
   void initState() {
@@ -38,13 +46,77 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
     _loadAppData();
   }
 
-  // ን 3 ካልኢት ዝፀንሕ ናይ ሎዲንግ/ስፕላሽ ግዜ (Splash Timing)
+  // 🌟 ሓዱሽ ዝተወሰኸ፡ ናይ ፕለይ ስቶር ኣውቶማቲክ ኣፕዴት መቆጻጻሪ
+  Future<void> _checkForUpdate() async {
+    if (Platform.isAndroid) {
+      try {
+        final updateInfo = await InAppUpdate.checkForUpdate();
+        if (updateInfo.updateAvailability ==
+            UpdateAvailability.updateAvailable) {
+          // ቀጥታ ነቲ ኣብ ስእሊ ዘርኣኻኒ ናይ Google Play Immediate Update ገጽ ይከፍቶ
+          await InAppUpdate.performImmediateUpdate();
+        }
+      } catch (e) {
+        // ገለ ጸገም እንተጋጢሙ ንተጠቃሚ ከየደናገረ ብስቕታ ይሓልፍ፣ ኣብ ኣናሊቲክስ እውን ይምዝገብ
+        AnalyticsService.track('in_app_update_failed', {
+          'error': e.toString(),
+        });
+      }
+    }
+  }
+
+  // 🌟 ሓዱሽ ዝተወሰኸ፦ ካብ ኣፕሊኬሽን ቅድሚ ምውጻእ ናይ ምርግጋጽ Dialogue መርኣዪ
+  Future<bool> _showExitConfirmationDialog(BuildContext context) async {
+    final isDark = themeNotifier.value == ThemeMode.dark;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1C1814) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'ርግጸኛታት ዲኹም？',
+          style: TextStyle(
+            fontFamily: 'Nyala',
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFC61B1B),
+          ),
+        ),
+        content: const Text(
+          'ካብዚ ኣፕሊኬሽን ክትወጹ ትደልዩ ዶ？',
+          style: TextStyle(fontFamily: 'Nyala', fontSize: 18),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('ኣይፋል',
+                style: TextStyle(
+                    fontFamily: 'Nyala', color: Colors.grey, fontSize: 16)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC61B1B),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('እወ',
+                style: TextStyle(
+                    fontFamily: 'Nyala', color: Colors.white, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  // ን 3 ካልኢት ዝጸንሕ ናይ ሎዲንግ/ስፕላሽ ግዜ (Splash Timing)
   void _loadAppData() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
       setState(() {
         _isLoading = false;
       });
+      _checkForUpdate(); // 🌟 ሓዱሽ ዝተወሰኸ (ስፕላሽ ሎዲንግ ምስ ተወድአ ኣፕዴት ይፍትሽ)
     }
   }
 
@@ -58,15 +130,15 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
 
   void _onItemTapped(int index) {
     HapticFeedback.lightImpact();
-
-    // ጥቅሲ ዝፈተኽዎም ታብ ብዝሒ ዝተጠቐመ ምምዝጋብ
     if (index == 2) {
       AnalyticsService.track('favorites_tab_clicked', {});
     }
-
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (_selectedIndex == index) {
+      // Tap same tab → pop to root of that tab
+      _navigatorKeys[index].currentState?.popUntil((r) => r.isFirst);
+    } else {
+      setState(() => _selectedIndex = index);
+    }
   }
 
   @override
@@ -79,115 +151,141 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
       return _buildLoadingScreen(context);
     }
 
-    // 2. ድሕሪኡ እቲ ናይ 4 ታባት ዋና ገፅ የርኢ
-    return Scaffold(
-      body: SafeArea(
-        child: IndexedStack(
+    // 2. ድሕሪኡ እቲ ናይ 4 ታባት ዋና ገጽ
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        // First try to pop within the current tab's navigator (safe: maybePop)
+        final popped =
+            await (_navigatorKeys[_selectedIndex].currentState?.maybePop() ??
+                Future.value(false));
+        if (!popped) {
+          if (_selectedIndex != 0) {
+            // Go back to home tab
+            setState(() => _selectedIndex = 0);
+          } else {
+            // On home with nothing to pop → exit app with confirmation dialogue
+            final shouldExit = await _showExitConfirmationDialog(context);
+            if (shouldExit) {
+              SystemNavigator.pop();
+            }
+          }
+        }
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: IndexedStack(
           index: _selectedIndex,
-          children: _pages,
-        ),
-      ),
-      // 45% ዶሚናንት ብዝኾነ ኣኒሜሽን ዝሰርሕ ዘመናዊ ታሕተዋይ ባር
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
+          children: [
+            for (int i = 0; i < _pages.length; i++)
+              _TabNavigator(
+                navigatorKey: _navigatorKeys[i],
+                child: _pages[i],
+              ),
           ],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // ናይቲ ስክሪን ሙሉእ ንጡፍ ስፍሓት ንረክብ
-                final double totalWidth = constraints.maxWidth;
+        bottomNavigationBar: _buildGlideNavBar(isDark),
+      ),
+    );
+  }
 
-                // 45% ስፍሓት ንዝተመርፀ ታብ
-                final double selectedWidth = totalWidth * 0.45;
+  // ===== Island Glide Navigation Bar =====
+  // 🌟 ዝተመሓየሸ - Proportional Widths (40% vs 20%) & Animated Containers
+  Widget _buildGlideNavBar(bool isDark) {
+    // ብኣውቶማቲክ ናይቲ ስክሪን ምሉእ ስፍሓት ይልክዕ
+    final double screenWidth = MediaQuery.of(context).size.width;
+    // ነቶም ታባት ዝተርፍ ስፍሓት (ካብቲ 18 * 2 = 36 ናይ ድሕንነት ርሕቀት ተቐናንዩ)
+    final double barWidth = screenWidth - 36;
 
-                // ዝተረፈ 55% ስፍሓት ንሰለስቲኦም ዘይተመርፁ ታባት (ነፍሲ ወከፍ ኣስታት 18.3%)
-                final double unselectedWidth = (totalWidth * 0.55) / 3;
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildAnimatedNavItem(0, 'ገዛ', 'assets/icons/home.png',
-                        isDark, selectedWidth, unselectedWidth),
-                    _buildAnimatedNavItem(1, 'ድለ', 'assets/icons/search.png',
-                        isDark, selectedWidth, unselectedWidth),
-                    _buildAnimatedNavItem(
-                        2,
-                        'ዝፈተኽዎም',
-                        'assets/icons/bookmark.png',
-                        isDark,
-                        selectedWidth,
-                        unselectedWidth),
-                    _buildAnimatedNavItem(3, 'ዝርዝር', 'assets/icons/app.png',
-                        isDark, selectedWidth, unselectedWidth),
-                  ],
-                );
-              },
-            ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+        child: Container(
+          height: 64, // 🌟 Compacter, sleeker height
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1C1814) : Colors.white,
+            borderRadius: BorderRadius.circular(32), // Half of 64
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildGlideNavItem(
+                  0, 'ገዛ', Icons.home_outlined, isDark, barWidth),
+              _buildGlideNavItem(1, 'ድለ', Icons.search, isDark, barWidth),
+              _buildGlideNavItem(
+                  2, 'ዝፈተኽዎም', Icons.bookmark_border_rounded, isDark, barWidth),
+              _buildGlideNavItem(
+                  3, 'ዝርዝር', Icons.grid_view_outlined, isDark, barWidth),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // 45% ዶሚናንት ስፍሓት ሒዙ ኣኒሜት ዝገብር ናይ ታብ ዊጀት
-  Widget _buildAnimatedNavItem(
-    int index,
-    String label,
-    String assetPath,
-    bool isDark,
-    double selectedWidth,
-    double unselectedWidth,
-  ) {
-    final isSelected = _selectedIndex == index;
-    // ዝተመረፀ እንተኾይኑ 45% ስፍሓት፣ እንተዘይኮይኑ 18.3% ይወስድ
-    final double targetWidth = isSelected ? selectedWidth : unselectedWidth;
+  // 🌟 ዝተመሓየሸ - Proportional Active Tab Container (Pill-shape)
+  Widget _buildGlideNavItem(
+      int index, String label, IconData icon, bool isDark, double barWidth) {
+    final bool sel = _selectedIndex == index;
+
+    // Amber peach circle color (warm, like the image)
+    const Color amberCircle = Color(0xFFFAEDD4);
+    const Color amberIcon = Color(0xFFB8860B);
+    final Color inactiveIcon =
+        isDark ? Colors.white.withValues(alpha: 0.75) : const Color(0xFF2B2418);
+
+    // 🌟 ሒሳባዊ መተግበሪ፦ ዝተመርጸ (Active) 40% ስፍሓት፣ ዘይተመርጹ ድማ በቢ 20% ክወስዱ ይገብር
+    final double targetWidth = sel ? barWidth * 0.40 : barWidth * 0.20;
 
     return GestureDetector(
       onTap: () => _onItemTapped(index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOutCubic, // ንስልጡን ምንቅስቓስ ዝጠቅም ኩርቭ
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic, // ልስሉስ ስላይድ ምንቅስቓስ
         width: targetWidth,
-        height: 48, // ቋሚ ቁመት ንምግባር
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFC61B1B) : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Center(
+        height: 64,
+        alignment: Alignment.center,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          width: sel
+              ? targetWidth - 8
+              : 44, // 🌟 ሓዱሽ ዝተወሰኸ (መረጻ ምስ ኾነ 40% ስፍሓት ይሕዝ)
+          height: 44, // 🌟 ሓዱሽ ዝተወሰኸ (ቁመቱ ማዕረ ንምግባር)
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: sel ? amberCircle : Colors.transparent,
+            borderRadius: BorderRadius.circular(22), // 🌟 Pill-shape ንምሓዝ
+          ),
           child: FittedBox(
-            fit: BoxFit.scaleDown, // እቲ ፅሑፍ ካብቲ ስፍሓት ወፃኢ ንከይፈስስ ይከላኸል
+            // 🌟 ሓዱሽ ዝተወሰኸ (ነቲ 28px ስፍሓት ንምክልኻል)
+            fit: BoxFit.scaleDown, // 🌟 ሓዱሽ ዝተወሰኸ
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ImageIcon(
-                  AssetImage(assetPath),
-                  size: 24,
-                  color: isSelected
-                      ? Colors.white
-                      : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                Icon(
+                  icon,
+                  size: 22,
+                  color: sel ? amberIcon : inactiveIcon,
                 ),
-                if (isSelected) ...[
-                  const SizedBox(width: 8),
+                if (sel) ...[
+                  const SizedBox(width: 6),
                   Text(
                     label,
                     style: const TextStyle(
                       fontFamily: 'Nyala',
-                      color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
+                      color: amberIcon,
                     ),
                   ),
                 ],
@@ -206,30 +304,58 @@ class _MeadiTsegaHomePageState extends State<MeadiTsegaHomePage> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: Stack(
         children: [
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // እቲ ዝሽከርከር መቑፀርያ ምስቲ ኣብ ማእኸሉ ዘሎ መስቀል
                 const RotatingRosarySpinner(
-                  size: 150,
-                  color: Color(0xFFC61B1B), // primaryRed
+                  size: 140,
+                  color: Color(0xFFC61B1B),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 32),
+                Text(
+                  'መኣዲ ጸጋ',
+                  style: TextStyle(
+                    fontFamily: 'Nyala',
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: isDark
+                        ? const Color(0xFFEEEEEE)
+                        : const Color(0xFF1A1A1A),
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ],
-            ),
-          ),
-          const Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 40.0),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+// Wraps each tab in its own Navigator so sub-screens push inside the tab,
+// keeping the outer Scaffold's nav bar always visible.
+class _TabNavigator extends StatelessWidget {
+  const _TabNavigator({required this.navigatorKey, required this.child});
+
+  final GlobalKey<NavigatorState> navigatorKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      // Prevent the nested navigator from intercepting the system back gesture
+      // (the outer PopScope handles it instead).
+      onPopPage: (route, result) {
+        if (!route.didPop(result)) return false;
+        return true;
+      },
+      onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => child),
     );
   }
 }
@@ -246,10 +372,10 @@ class _HomeViewState extends State<_HomeView> {
   int _currentImageIndex = 0;
   Map<String, String>? _randomQuote; // ብራንደም ዝሳሓብ ጥቅሲ
 
-  // ቆፀራ ግዘ ሆም ስክሪን ንምክትታል
+  // ቆጸራ ግዘ ሆም ስክሪን ንምክትታል
   late DateTime _homeStartTime;
 
-  // እቶም 5 ሰሌክት ጥራይ ዝተገበሩ ምስልታት (Landscape)
+  // እቶም 5 ሰሌክት ጥቅስታት (Landscape)
   final List<String> _homeImages = const [
     'assets/images/home/jesus2.jpg',
     'assets/images/home/jesus10.jpg',
@@ -262,7 +388,7 @@ class _HomeViewState extends State<_HomeView> {
   void initState() {
     super.initState();
     _homeStartTime = DateTime.now(); // ምጅማር ሰዓት ሆም ስክሪን
-    _selectRandomQuote(); // ጥቅሲ ካብቲ ሓድሽ search_engine.dart ብራንደም ይመርፅ
+    _selectRandomQuote(); // ጥቅሲ ካብቲ ሓድሽ search_engine.dart ብራንደም ይመርጽ
 
     _slideTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (mounted) {
@@ -273,7 +399,7 @@ class _HomeViewState extends State<_HomeView> {
     });
   }
 
-  // ካብቲ ዳታ ሓደ ብራንደም ጥቅስ ዝመርፅ ፈንክሽን
+  // ካብቲ ዳታ ሓደ ብራንደም ጥቅስ ዝመርጽ ፈንክሽን
   void _selectRandomQuote() {
     setState(() {
       // ብቐጥታ ካብቲ ዝተፈለየ GlobalSearchEngine ጥቅሲ ይሓፍስ
@@ -284,7 +410,7 @@ class _HomeViewState extends State<_HomeView> {
   @override
   void dispose() {
     _slideTimer.cancel();
-    // ተጠቃሚ ኣብ ሆም ስክሪን ዝፀንሓሉ ሰኮንዶች ይመዝግብ
+    // ተጠቃሚ ኣብ ሆም ስክሪን ዝጸንሓሉ ሰኮንዶች ይመዝግብ
     final int secondsSpent =
         DateTime.now().difference(_homeStartTime).inSeconds;
     AnalyticsService.track('time_spent_on_home', {
@@ -302,17 +428,20 @@ class _HomeViewState extends State<_HomeView> {
       physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
-          const SizedBox(height: 16),
-          // 1. Top Red Banner (መኣዲ ጸጋ ምስ Sliding Background & Theme Toggle)
+          // 1. Hero Banner
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 38.0),
+            padding: EdgeInsets.zero,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
               child: SizedBox(
                 width: double.infinity,
-                height: 150,
+                height: 230,
                 child: Stack(
                   children: [
+                    // Sliding background image
                     Positioned.fill(
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 1500),
@@ -330,6 +459,7 @@ class _HomeViewState extends State<_HomeView> {
                         ),
                       ),
                     ),
+                    // Rich multi-stop gradient overlay
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
@@ -337,83 +467,159 @@ class _HomeViewState extends State<_HomeView> {
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                             colors: [
-                              const Color(0xFFC61B1B),
-                              const Color(0xFFC61B1B).withValues(alpha: 0.70),
-                              const Color(0xFFC61B1B).withValues(alpha: 0.50),
-                              const Color(0xFFC61B1B).withValues(alpha: 0.15),
+                              Colors.black.withValues(alpha: 0.82),
+                              Colors.black.withValues(alpha: 0.58),
+                              Colors.black.withValues(alpha: 0.22),
+                              Colors.transparent,
                             ],
-                            stops: const [0.0, 0.3, 0.55, 0.8],
+                            stops: const [0.0, 0.30, 0.62, 0.90],
                           ),
                         ),
                       ),
                     ),
+                    // Bottom vignette for dot readability
                     Positioned(
-                      left: 20,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 56,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.35),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // App title
+                    Positioned(
+                      left: 22,
                       top: 0,
                       bottom: 0,
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'መኣዲ',
                             style: TextStyle(
                               fontFamily: 'Nyala',
                               color: Colors.white,
-                              fontSize: 45,
+                              fontSize: 52,
                               fontWeight: FontWeight.bold,
-                              height: 0.38,
+                              height: 0.9,
+                              shadows: [
+                                Shadow(color: Colors.black38, blurRadius: 14)
+                              ],
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 28.0),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 32.0),
                             child: Text(
                               'ጸጋ',
                               style: TextStyle(
                                 fontFamily: 'Nyala',
                                 color: Colors.white,
-                                fontSize: 45,
+                                fontSize: 52,
                                 fontWeight: FontWeight.bold,
-                                height: 0.75,
+                                height: 0.88,
+                                shadows: [
+                                  Shadow(color: Colors.black38, blurRadius: 14)
+                                ],
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 2.5,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withValues(alpha: 0.85),
+                                  Colors.white.withValues(alpha: 0.0),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'ቃል ኣምላኽ ዝምገብሉ መንፈሳዊ ማእኸል',
+                            style: TextStyle(
+                              fontFamily: 'Nyala',
+                              color: Colors.white.withValues(alpha: 0.82),
+                              fontSize: 14,
+                              shadows: const [
+                                Shadow(color: Colors.black45, blurRadius: 10)
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
+                    // Bell icon — top right (taps theme toggle)
                     Positioned(
-                      right: 20,
-                      bottom: 20,
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            icon: Icon(
-                              isDark
-                                  ? Icons.light_mode_rounded
-                                  : Icons.dark_mode_rounded,
-                              color: const Color(0xFFC61B1B),
-                              size: 24,
+                      right: 14,
+                      top: 14,
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          final nextMode =
+                              isDark ? ThemeMode.light : ThemeMode.dark;
+                          themeNotifier.value = nextMode;
+                          AnalyticsService.track('dark_mode_toggled', {
+                            'is_dark_mode': nextMode == ThemeMode.dark,
+                            'source': 'home_screen_banner'
+                          });
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.35),
+                              width: 1.2,
                             ),
-                            onPressed: () {
-                              HapticFeedback.lightImpact();
-                              final nextMode =
-                                  isDark ? ThemeMode.light : ThemeMode.dark;
-                              themeNotifier.value = nextMode;
-
-                              // ናይ ዳርክ ሞድ ምቕያር ንጥፈት ምምዝጋብ
-                              AnalyticsService.track('dark_mode_toggled', {
-                                'is_dark_mode': nextMode == ThemeMode.dark,
-                                'source': 'home_screen_banner'
-                              });
-                            },
+                          ),
+                          child: Icon(
+                            isDark
+                                ? Icons.wb_sunny_rounded
+                                : Icons.dark_mode_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Slide dot indicators — bottom center
+                    Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _homeImages.length,
+                          (i) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            width: i == _currentImageIndex ? 22 : 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: i == _currentImageIndex
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.45),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
                           ),
                         ),
                       ),
@@ -426,128 +632,165 @@ class _HomeViewState extends State<_HomeView> {
 
           const SizedBox(height: 16),
 
-          // 2. Promo/Quote Banner
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 38.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: const Color(0xFFC61B1B).withValues(alpha: 0.12),
-                width: 1.0,
+          // 2. Quote Banner — elegant card
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark
+                      ? [const Color(0xFF1C1414), const Color(0xFF1A1A1A)]
+                      : [Colors.white, const Color(0xFFFDF5EE)],
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFC61B1B)
+                        .withValues(alpha: isDark ? 0.12 : 0.07),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                )
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: isDark
-                              ? [
-                                  const Color(0xFF1E1E1E),
-                                  const Color(0xFF1F1213),
-                                ]
-                              : [
-                                  const Color(0xFFFFFDF9),
-                                  const Color(0xFFF9F4EE),
-                                ],
-                        ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Decorative open-quote glyph
+                    Text(
+                      '\u201c',
+                      style: const TextStyle(
+                        fontFamily: 'serif',
+                        fontSize: 84,
+                        height: 0.55,
+                        color: Color(0xFFE8B15A),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    left: -15,
-                    top: -15,
-                    child: Icon(
-                      Icons.format_quote_rounded,
-                      size: 140,
-                      color: const Color(0xFFC61B1B)
-                          .withValues(alpha: isDark ? 0.025 : 0.05),
+                    const SizedBox(height: 6),
+                    Text(
+                      _randomQuote != null
+                          ? _randomQuote!['quote']!
+                          : '\u1275\u1215\u12d8\u1276 \u12ed\u1345\u12d3\u1295 \u12a3\u120e...',
+                      style: TextStyle(
+                        fontFamily: 'Nyala',
+                        fontSize: 18.5,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.bodyLarge?.color,
+                        height: 1.45,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32.0, vertical: 32.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                    const SizedBox(height: 14),
+                    Row(
                       children: [
-                        Text(
-                          _randomQuote != null
-                              ? '"${_randomQuote!['quote']}"'
-                              : 'ትሕዝቶ ይፅዓን ኣሎ...',
-                          style: TextStyle(
-                            fontFamily: 'Nyala',
-                            fontSize: 19.5,
-                            fontWeight: FontWeight.bold,
-                            color: theme.textTheme.bodyLarge?.color
-                                ?.withOpacity(0.95),
-                            height: 1.25,
+                        Container(
+                          width: 28,
+                          height: 2.5,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8B15A),
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Container(
-                              width: 14,
-                              height: 1.5,
-                              color: const Color(0xFFC61B1B)
-                                  .withValues(alpha: 0.5),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _randomQuote?['author'] ?? '',
+                            style: TextStyle(
+                              fontFamily: 'Nyala',
+                              fontSize: 14.5,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w600,
                             ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                _randomQuote?['author'] ?? '',
-                                style: TextStyle(
-                                  fontFamily: 'Nyala',
-                                  fontSize: 15.5,
-                                  color: isDark
-                                      ? Colors.grey.shade400
-                                      : Colors.grey.shade700,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                          3,
+                          (i) => Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 3),
+                                width: i == 1 ? 20 : 7,
+                                height: 7,
+                                decoration: BoxDecoration(
+                                  color: i == 1
+                                      ? const Color(0xFFE8B15A)
+                                      : Colors.grey.withValues(alpha: 0.30),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              )),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          // 3. Grid View (6 Items)
+          // 3. Section label
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 38.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFC61B1B), Color(0xFF9E0B0F)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'ዝርዝር ዕዮታት',
+                  style: TextStyle(
+                    fontFamily: 'Nyala',
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // 4. Grid View (6 Items)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              crossAxisSpacing: 35,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.1,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              childAspectRatio: 1.0,
               children: [
-                _buildGridItem(context, 'ዝተፈላለዩ ፀሎታት', const PrayerScreen()),
+                _buildGridItem(context, 'ዝተፈላለዩ ጸሎታት', const PrayerScreen()),
                 _buildGridItem(
                     context, 'ታሪኽ ቅዱሳን', const SaintsHistoryScreen()),
                 _buildGridItem(
@@ -568,8 +811,24 @@ class _HomeViewState extends State<_HomeView> {
 
   Widget _buildGridItem(
       BuildContext context, String title, Widget destinationPage) {
+    const Map<String, IconData> categoryIcons = {
+      'ዝተፈላለዩ ጸሎታት': Icons.favorite_rounded,
+      'ታሪኽ ቅዱሳን': Icons.menu_book_rounded,
+      'ጥቅስታት ቅዱሳን': Icons.format_quote_rounded,
+      'ትምህርተ ሃይማኖት': Icons.school_rounded,
+      'ታሪኽ ቤተክርስትያን': Icons.church_rounded,
+      'መንፈሳዊ ህይወት': Icons.eco_rounded,
+    };
+    const Map<String, String> categorySubtitles = {
+      'ዝተፈላለዩ ጸሎታት': 'መሰረታዊ ትምህርትን ጸሎታትን',
+      'ታሪኽ ቅዱሳን': 'ኣብነት ቅዱሳን ብሓጺሩ',
+      'ጥቅስታት ቅዱሳን': 'መንፈሳዊ ጥበብን ኣስተንትኖን',
+      'ትምህርተ ሃይማኖት': 'ዶግማን መሰረተ እምነትን',
+      'ታሪኽ ቤተክርስትያን': 'ታሪኽ ካቶሊክ ኣብ ሓበሻ',
+      'መንፈሳዊ ህይወት': 'ስርዓተ ቅዳሴ፣ ቃል ኣምላኽን መንፈሳዊ ተጋድሎን',
+    };
     final Map<String, String> gridIcons = {
-      'ዝተፈላለዩ ፀሎታት': 'assets/icons/All_Prayer.jpg',
+      'ዝተፈላለዩ ጸሎታት': 'assets/icons/All_Prayer.jpg',
       'ታሪኽ ቅዱሳን': 'assets/icons/sainthistory.jpg',
       'ጥቅስታት ቅዱሳን': 'assets/icons/quotes.jpg',
       'ትምህርተ ሃይማኖት': 'assets/icons/doctrine.png',
@@ -577,65 +836,146 @@ class _HomeViewState extends State<_HomeView> {
       'መንፈሳዊ ህይወት': 'assets/icons/spirituallife.png',
     };
 
-    final imageAssetPath = gridIcons[title] ?? 'assets/images/others/jesus.jpg';
+    // Unique accent gradient per category
+    const Map<String, List<Color>> categoryAccents = {
+      'ዝተፈላለዩ ጸሎታት': [Color(0xFFC61B1B), Color(0xFF7B0000)],
+      'ታሪኽ ቅዱሳን': [Color(0xFF1565C0), Color(0xFF0A2472)],
+      'ጥቅስታት ቅዱሳን': [Color(0xFF6A1B9A), Color(0xFF38006B)],
+      'ትምህርተ ሃይማኖት': [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+      'ታሪኽ ቤተክርስትያን': [Color(0xFF795548), Color(0xFF3E2723)],
+      'መንፈሳዊ ህይወት': [Color(0xFFE65100), Color(0xFF7F2800)],
+    };
 
-    return InkWell(
+    final imageAssetPath = gridIcons[title] ?? 'assets/images/others/jesus.jpg';
+    final accentColors = categoryAccents[title] ??
+        [const Color(0xFFC61B1B), const Color(0xFF7B0000)];
+
+    return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-
-        // ቆፀራ ናይቶም 6 ዋናታት ዓውድታት (Category clicks) ምምዝጋብ
-        AnalyticsService.track('category_clicked', {
-          'category_name': title,
-        });
-
+        AnalyticsService.track('category_clicked', {'category_name': title});
         Navigator.push(context,
             SlowCupertinoPageRoute(builder: (context) => destinationPage));
       },
-      borderRadius: BorderRadius.circular(45), // ነቲ ክቢ ቅርፂ (Round design) ንምምፃእ
       child: Container(
-        clipBehavior: Clip
-            .antiAlias, // ነቲ ባር ኣብ ውሽጢ እቲ ዝተኮርነተ ዙርያ ጥራይ ንምዕቃብ (Anti-aliasing)
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(45),
-          image: DecorationImage(
-            image: AssetImage(imageAssetPath),
-            fit: BoxFit.cover,
-          ),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
+              color: accentColors[0].withValues(alpha: 0.28),
+              blurRadius: 18,
+              offset: const Offset(0, 7),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 12,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
         ),
-        child: Stack(
-          children: [
-            // እታ ኣብ ታሕተዋይ ክፋል ጋድም ኢላ እትርከብ ቀይሕ ባር (Low-opacity RED overlay bar)
-            Positioned(
-              bottom: 12, // ምስቲ ስእሊ ብልክዕ ዝሰማማዕ ኣቀማምጣ
-              left: 0,
-              right: 0,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E)
-                      .withOpacity(0.45), // ትሑት ኦፓሲቲ ዘለዎ ቀይሕ ሕብሪ (55%)
-                ),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Nyala',
-                    fontSize: 16.5, // ፅፉፍን ሚዛናውን ዝኾነ ፎንት ሳይዝ
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(imageAssetPath, fit: BoxFit.cover),
+              // Accent color tint overlay (top half — subtle)
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        accentColors[0].withValues(alpha: 0.22),
+                        accentColors[1].withValues(alpha: 0.05),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+              // Bottom-to-top dark gradient for readability
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        accentColors[1].withValues(alpha: 0.5),
+                        accentColors[1].withValues(alpha: 0.92),
+                      ],
+                      stops: const [0.35, 0.7, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+              // Center category icon circle
+              Center(
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColors[0].withValues(alpha: 0.40),
+                        blurRadius: 16,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    categoryIcons[title] ?? Icons.apps_rounded,
+                    size: 30,
+                    color: accentColors[0],
+                  ),
+                ),
+              ),
+              // Title and subtitle at bottom
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Nyala',
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(color: Colors.black54, blurRadius: 8)
+                          ],
+                        ),
+                      ),
+                      Text(
+                        categorySubtitles[title] ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Nyala',
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.80),
+                          shadows: const [
+                            Shadow(color: Colors.black54, blurRadius: 6)
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

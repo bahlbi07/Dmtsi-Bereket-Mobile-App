@@ -6,7 +6,7 @@ final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: primaryRed,
   scaffoldBackgroundColor: lightBackground,
-  fontFamily: 'Nyala', // <<< GoogleFonts ጠፊኡ Nyala ኣትዩ
+  fontFamily: 'Nyala',
   colorScheme: const ColorScheme.light(
     primary: primaryRed,
     secondary: primaryRed,
@@ -29,9 +29,9 @@ final ThemeData lightTheme = ThemeData(
   ),
   cardTheme: CardThemeData(
     color: lightCardColor,
-    elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.05),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    elevation: 0,
+    shadowColor: Colors.black.withOpacity(0.08),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
   ),
   textTheme: const TextTheme(
     headlineSmall:
@@ -61,7 +61,7 @@ final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: primaryRed,
   scaffoldBackgroundColor: darkBackground,
-  fontFamily: 'Nyala', // <<< GoogleFonts ጠፊኡ Nyala ኣትዩ
+  fontFamily: 'Nyala',
   colorScheme: const ColorScheme.dark(
     primary: primaryRed,
     secondary: primaryRed,
@@ -84,9 +84,9 @@ final ThemeData darkTheme = ThemeData(
   ),
   cardTheme: CardThemeData(
     color: darkCardColor,
-    elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.2),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    elevation: 0,
+    shadowColor: Colors.black.withOpacity(0.3),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
   ),
   textTheme: const TextTheme(
     headlineSmall:

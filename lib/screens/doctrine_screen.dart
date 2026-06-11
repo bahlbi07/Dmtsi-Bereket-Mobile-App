@@ -4,7 +4,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:meadi_tsga/data/doctrine_data.dart';
 import 'package:meadi_tsga/custom_page_route.dart';
 import 'package:meadi_tsga/favorites_manager.dart';
-import '../app_colors.dart';
+import 'package:meadi_tsga/premium_ui.dart';
 
 // =======================================================================
 // Screen 1: Doctrine Topics List
@@ -19,45 +19,17 @@ class DoctrineScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Appbar with 38.0 Padding
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Text(
-                    'ትምህርተ ሃይማኖት',
-                    style: TextStyle(
-                      fontFamily: 'Nyala',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
+            buildPremiumPageHeader(context,
+                title: 'ትምህርተ ሃይማኖት', isDark: isDark),
             Expanded(
               child: AnimationLimiter(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 38.0, vertical: 8.0),
+                      horizontal: 20.0, vertical: 8.0),
                   itemCount: doctrineTopics.length,
                   itemBuilder: (context, index) {
                     final topic = doctrineTopics[index];
@@ -68,23 +40,12 @@ class DoctrineScreen extends StatelessWidget {
                         verticalOffset: 50.0,
                         child: FadeInAnimation(
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: 16.0),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF1E1E1E)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black
-                                      .withValues(alpha: isDark ? 0.2 : 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
+                            margin: const EdgeInsets.only(bottom: 10.0),
+                            decoration: buildPremiumCardDecoration(isDark),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(22),
+                              splashColor: const Color(0xFFC61B1B)
+                                  .withValues(alpha: 0.05),
                               onTap: () {
                                 HapticFeedback.lightImpact();
                                 final List<Map<String, dynamic>> subTopics =
@@ -92,8 +53,8 @@ class DoctrineScreen extends StatelessWidget {
                                             topic['key'] as String] ??
                                         [];
 
-                                Navigator.push(
-                                  context,
+                                // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                                Navigator.of(context, rootNavigator: true).push(
                                   SlowCupertinoPageRoute(
                                     builder: (context) =>
                                         DoctrineSubTopicScreen(
@@ -104,46 +65,34 @@ class DoctrineScreen extends StatelessWidget {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 14.0),
                                 child: Row(
                                   children: [
-                                    Container(
-                                      width: 55,
-                                      height: 55,
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? Colors.grey.shade800
-                                            : const Color(0xFFF0F0F2),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          topic['icon'] as IconData? ??
-                                              Icons.school_outlined,
-                                          size: 28,
-                                          color: const Color(0xFFC61B1B),
-                                        ),
+                                    buildPremiumIconContainer(
+                                      isDark: isDark,
+                                      child: Icon(
+                                        topic['icon'] as IconData? ??
+                                            Icons.school_outlined,
+                                        size: 24,
+                                        color: const Color(0xFFC61B1B),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    const SizedBox(width: 14),
                                     Expanded(
                                       child: Text(
                                         topic['title'] as String,
                                         style: TextStyle(
                                           fontFamily: 'Nyala',
-                                          fontSize: 18.5,
+                                          fontSize: 17.5,
                                           fontWeight: FontWeight.bold,
                                           color: isDark
-                                              ? Colors.white
+                                              ? const Color(0xFFEEEEEE)
                                               : Colors.black87,
                                         ),
                                       ),
                                     ),
-                                    Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 16,
-                                      color: Colors.grey.shade400,
-                                    ),
+                                    buildPremiumChevronButton(),
                                   ],
                                 ),
                               ),
@@ -191,69 +140,29 @@ class DoctrineSubTopicScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
+          isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF7F2ED),
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 10),
-
-            // Appbar with back chevron
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Expanded(
-                    child: Text(
-                      mainTopicTitle,
-                      style: const TextStyle(
-                        fontFamily: 'Nyala',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
+            buildPremiumPageHeader(context,
+                title: mainTopicTitle, isDark: isDark),
             Expanded(
               child: ListView.builder(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 38.0, vertical: 8.0),
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                 itemCount: subTopics.length,
                 itemBuilder: (context, index) {
                   final subTopic = subTopics[index];
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 16.0),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black
-                              .withValues(alpha: isDark ? 0.2 : 0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
+                    margin: const EdgeInsets.only(bottom: 10.0),
+                    decoration: buildPremiumCardDecoration(isDark),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(18),
+                      splashColor:
+                          const Color(0xFFC61B1B).withValues(alpha: 0.05),
                       onTap: () {
-                        Navigator.push(
-                          context,
+                        // ✅ ሩት ናቪጌተር ብምጥቃም ነቲ ታሕተዋይ ባር ንሓብኦ
+                        Navigator.of(context, rootNavigator: true).push(
                           SlowCupertinoPageRoute(
                             builder: (context) => DoctrineViewerScreen(
                               mainTopicTitle: mainTopicTitle,
@@ -264,47 +173,37 @@ class DoctrineSubTopicScreen extends StatelessWidget {
                         );
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 14.0),
                         child: Row(
                           children: [
-                            Container(
-                              width: 55,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? Colors.grey.shade800
-                                    : const Color(0xFFF0F0F2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '0${index + 1}',
-                                  style: const TextStyle(
-                                    fontFamily: 'Nyala',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFC61B1B),
-                                  ),
+                            buildPremiumIconContainer(
+                              isDark: isDark,
+                              child: Text(
+                                '${index + 1 < 10 ? '0' : ''}${index + 1}',
+                                style: const TextStyle(
+                                  fontFamily: 'Nyala',
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFC61B1B),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 14),
                             Expanded(
                               child: Text(
                                 subTopic['title'] as String,
                                 style: TextStyle(
                                   fontFamily: 'Nyala',
-                                  fontSize: 18,
+                                  fontSize: 17.5,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: isDark
+                                      ? const Color(0xFFEEEEEE)
+                                      : Colors.black87,
                                 ),
                               ),
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 16,
-                              color: Colors.grey.shade400,
-                            ),
+                            buildPremiumChevronButton(),
                           ],
                         ),
                       ),
@@ -343,6 +242,7 @@ class _DoctrineViewerScreenState extends State<DoctrineViewerScreen> {
   late final PageController _pageController;
   late int _currentIndex;
   final FavoritesManager _favoritesManager = FavoritesManager();
+  bool _isFullscreen = false;
 
   @override
   void initState() {
@@ -354,7 +254,15 @@ class _DoctrineViewerScreenState extends State<DoctrineViewerScreen> {
   @override
   void dispose() {
     _pageController.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
+  }
+
+  void _toggleFullscreen() {
+    setState(() => _isFullscreen = !_isFullscreen);
+    SystemChrome.setEnabledSystemUIMode(
+      _isFullscreen ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
+    );
   }
 
   Future<void> _toggleFavorite() async {
@@ -399,62 +307,79 @@ class _DoctrineViewerScreenState extends State<DoctrineViewerScreen> {
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F7),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
-        title: Text(
-          currentSubTopic['title'] as String,
-          style: TextStyle(
-            fontFamily: 'Nyala',
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
-            fontSize: 22,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-                isCurrentlyFavorite
-                    ? Icons.star_rounded
-                    : Icons.star_outline_rounded,
-                size: 26),
-            color: isCurrentlyFavorite
-                ? const Color(0xFFC61B1B)
-                : (isDark ? Colors.white70 : Colors.black54),
-            onPressed: _toggleFavorite,
-          ),
-          if (widget.subTopics.length > 1) ...[
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios, size: 18),
-              onPressed: canGoPrevious
-                  ? () => _pageController.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut)
-                  : null,
+      appBar: _isFullscreen
+          ? null
+          : AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              iconTheme:
+                  IconThemeData(color: isDark ? Colors.white : Colors.black87),
+              title: Text(
+                currentSubTopic['title'] as String,
+                style: TextStyle(
+                  fontFamily: 'Nyala',
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontSize: 22,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                      isCurrentlyFavorite
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      size: 26),
+                  color: isCurrentlyFavorite
+                      ? const Color(0xFFC61B1B)
+                      : (isDark ? Colors.white70 : Colors.black54),
+                  onPressed: _toggleFavorite,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.fullscreen_rounded, size: 22),
+                  onPressed: _toggleFullscreen,
+                ),
+                if (widget.subTopics.length > 1) ...[
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, size: 18),
+                    onPressed: canGoPrevious
+                        ? () => _pageController.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut)
+                        : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios, size: 18),
+                    onPressed: canGoNext
+                        ? () => _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut)
+                        : null,
+                  ),
+                ],
+                const SizedBox(width: 20),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.arrow_forward_ios, size: 18),
-              onPressed: canGoNext
-                  ? () => _pageController.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut)
-                  : null,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.subTopics.length,
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+            },
+            itemBuilder: (context, index) {
+              return DoctrineDetailPage(subTopicData: widget.subTopics[index]);
+            },
+          ),
+          if (_isFullscreen)
+            buildFullscreenOverlay(
+              context: context,
+              title: currentSubTopic['title'] as String,
+              onExit: _toggleFullscreen,
             ),
-          ],
-          const SizedBox(width: 20),
         ],
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.subTopics.length,
-        onPageChanged: (index) {
-          setState(() => _currentIndex = index);
-        },
-        itemBuilder: (context, index) {
-          return DoctrineDetailPage(subTopicData: widget.subTopics[index]);
-        },
       ),
     );
   }
@@ -589,9 +514,15 @@ class _DoctrineDetailPageState extends State<DoctrineDetailPage>
       BuildContext context, List<Map<String, dynamic>> contentList) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final double safeBottomPadding = MediaQuery.of(context).padding.bottom;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 38.0, vertical: 20.0),
+      padding: EdgeInsets.only(
+        left: 38.0,
+        right: 38.0,
+        top: 20.0,
+        bottom: safeBottomPadding > 0 ? safeBottomPadding + 20.0 : 40.0,
+      ),
       child: Container(
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
