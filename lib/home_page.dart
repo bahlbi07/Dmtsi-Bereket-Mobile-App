@@ -1,9 +1,18 @@
-import 'dart:async'; // ን ስላይድ ማኒፑሌት ንምግባር
+// ignore_for_file: curly_braces_in_flow_control_structures
+
+import 'dart:convert';
 import 'dart:io'; // 🌟 ሓዱሽ ዝተወሰኸ (ን Platform.isAndroid ፍተሻ)
 import 'dart:math' as math;
+import 'dart:async'; // ን ስላይድ ማኒፑሌት ንምግባር
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:in_app_update/in_app_update.dart'; // 🌟 ሓዱሽ ዝተወሰኸ (ን Google Play In-App Updates)
+
+// 🌟 AdMob ንምእታው ዝተወሰኹ ሓደስቲ ፓኬጃት 🌟
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'services/ad_helper.dart';
+import 'widgets/offline_ad_widget.dart';
+
 import 'custom_page_route.dart';
 import 'main.dart'; // ን themeNotifier ንምርካብ
 import 'utils/analytics_service.dart'; // ሓዱሽ ሰርቪስ
@@ -359,6 +368,10 @@ class _HomeViewState extends State<_HomeView> {
 
   late DateTime _homeStartTime;
 
+  // 🌟 AdMob Banner Ad ንምቁጽጻር ዝተወሰኹ ቫርየብልስ 🌟
+  BannerAd? _bannerAd;
+  bool _isBannerAdLoaded = false;
+
   final List<String> _homeImages = const [
     'assets/images/home/jesus2.jpg',
     'assets/images/home/jesus10.jpg',
@@ -382,6 +395,41 @@ class _HomeViewState extends State<_HomeView> {
     });
   }
 
+  // 🌟 Context ደሓን ኮይኑ ምስ ተዳለወ ሓዱሽ Banner Ad ንምፅዓን 🌟
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bannerAd == null) {
+      _loadBannerAd();
+    }
+  }
+
+  // 🌟 Banner Ad Load ዝገብር ሓዱሽ ፈንክሽን 🌟
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          debugPrint('BannerAd loaded.');
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          debugPrint('BannerAd failed to load: $error');
+          ad.dispose();
+          // 🌟 ሓዱሽ ዝተወሰኸ፦ እቲ ኣፕሊኬሽን ኔትወርክ ምስ ተመልሰ ዳግማይ Ad ንኽልምን ይሕግዝ
+          setState(() {
+            _bannerAd = null;
+            _isBannerAdLoaded = false;
+          });
+        },
+      ),
+    )..load();
+  }
+
   void _selectRandomQuote() {
     setState(() {
       _randomQuote = GlobalSearchScreen.getRandomQuote(quotesContentData);
@@ -396,6 +444,8 @@ class _HomeViewState extends State<_HomeView> {
     AnalyticsService.track('time_spent_on_home', {
       'seconds': secondsSpent,
     });
+    // 🌟 ነቲ Banner Ad ካብ ሜሞሪ ንምድምሳስ ዝተወሰኸ 🌟
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -604,6 +654,19 @@ class _HomeViewState extends State<_HomeView> {
             ),
           ),
 
+          const SizedBox(height: 16),
+
+          // 🌟 Google AdMob Banner Ad / Offline Banner Placement (ኣብ መንጎ ምስልን ጥቅስን ዘመናዊ ኣቀማምጣ) 🌟
+          if (_isBannerAdLoaded && _bannerAd != null)
+            SafeArea(
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            )
+          else
+            const OfflineAdWidget(), // 🌟 ኢንተርኔት ኦፍላይን ክኸውን ከሎ እዚ ስማርት ባነር ባዕሉ የርእይ 🌟
           const SizedBox(height: 16),
 
           // 2. Quote Banner
@@ -950,9 +1013,6 @@ class _HomeViewState extends State<_HomeView> {
   }
 }
 
-// =======================================================================
-// Rotating Rosary Spinner
-// =======================================================================
 class RotatingRosarySpinner extends StatefulWidget {
   final double size;
   final Color color;
@@ -960,7 +1020,7 @@ class RotatingRosarySpinner extends StatefulWidget {
 
   const RotatingRosarySpinner({
     super.key,
-    this.size = 150,
+    this.size = 140,
     required this.color,
     this.showCross = true,
   });

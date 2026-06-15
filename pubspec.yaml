@@ -2,7 +2,7 @@ name: meadi_tsga
 description: A Flutter project for meaditsega.
 publish_to: 'none'
 
-version: 2.0.1+13
+version: 2.0.3+16
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -33,6 +33,8 @@ dependencies:
   connectivity_plus: ^6.1.1
   http: ^1.2.2
   uuid: ^4.5.1
+  # 🌟 AdMob Dependency 🌟
+  google_mobile_ads: ^8.0.0
 
 dev_dependencies:
   flutter_test:
@@ -55,7 +57,7 @@ flutter:
 
   assets:
     - assets/icons/
-    - assets/dmtsi_bereket_logo.jpg
+    - assets/app_logo.jpg
     - assets/images/
     - assets/images/singers/
     - assets/images/saints/
@@ -64,6 +66,7 @@ flutter:
     - assets/images/prayers/
     - assets/images/church_history/
     - assets/images/prayers/fnote_mesqel/
+    - assets/dmtse_bereket.png # 🌟 ናይ «ድምጸ በረኸት» ሓቀኛ ሎጎ ምስሊ (PNG) 🌟
     - assets/images/others/
     - assets/images/home/
     - assets/images/category/
